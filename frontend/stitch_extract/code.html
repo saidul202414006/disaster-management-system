@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Disaster Management System</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;family=JetBrains+Mono:wght@400;500;700;800&amp;family=Playfair+Display:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#262626",
+                        "secondary": "#a3a3a3",
+                        "warning-amber": "#d4d4d4",
+                        "surface-container-highest": "#171717",
+                        "surface-container-high": "#171717",
+                        "on-secondary": "#171717",
+                        "secondary-container": "#404040",
+                        "on-error": "#690005",
+                        "secondary-fixed": "#e5e5e5",
+                        "tertiary": "#d4d4d4",
+                        "surface-container-lowest": "#0a0a0a",
+                        "primary": "#f5f5f5",
+                        "outline": "#525252",
+                        "primary-container": "#404040",
+                        "on-tertiary-fixed": "#171717",
+                        "success-emerald": "#10b981",
+                        "on-tertiary-fixed-variant": "#404040",
+                        "on-tertiary": "#171717",
+                        "on-tertiary-container": "#f5f5f5",
+                        "on-primary": "#171717",
+                        "secondary-fixed-dim": "#d4d4d4",
+                        "emergency-red": "#ef4444",
+                        "tertiary-container": "#525252",
+                        "on-primary-container": "#f5f5f5",
+                        "on-secondary-container": "#f5f5f5",
+                        "surface-container-low": "#0a0a0a",
+                        "primary-fixed": "#e5e5e5",
+                        "inverse-primary": "#404040",
+                        "unicef-cyan": "#0ea5e9",
+                        "on-surface": "#f5f5f5",
+                        "on-background": "#f5f5f5",
+                        "on-secondary-fixed": "#171717",
+                        "primary-fixed-dim": "#d4d4d4",
+                        "surface-dim": "#171717",
+                        "outline-variant": "#404040",
+                        "on-primary-fixed": "#171717",
+                        "tertiary-fixed": "#e5e5e5",
+                        "fema-blue": "#0284c7",
+                        "on-primary-fixed-variant": "#404040",
+                        "error": "#ffb4ab",
+                        "on-error-container": "#ffdad6",
+                        "surface": "#171717",
+                        "surface-container": "#171717",
+                        "surface-tint": "#f5f5f5",
+                        "tertiary-fixed-dim": "#d4d4d4",
+                        "inverse-on-surface": "#0a0a0a",
+                        "inverse-surface": "#f5f5f5",
+                        "error-container": "#93000a",
+                        "on-surface-variant": "#a3a3a3",
+                        "on-secondary-fixed-variant": "#404040",
+                        "background": "#0a0a0a",
+                        "surface-variant": "#262626"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0px",
+                        "lg": "0px",
+                        "xl": "0px",
+                        "full": "0px"
+                    },
+                    "spacing": {
+                        "stack-xs": "4px",
+                        "unit": "4px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px",
+                        "container-margin": "24px",
+                        "gutter": "16px",
+                        "stack-lg": "24px",
+                        "stack-xl": "32px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["JetBrains Mono"],
+                        "metric-xl": ["Playfair Display"],
+                        "display-lg": ["Playfair Display"],
+                        "headline-lg-mobile": ["Playfair Display"],
+                        "body-lg": ["JetBrains Mono"],
+                        "body-md": ["JetBrains Mono"],
+                        "headline-lg": ["Playfair Display"],
+                        "label-sm": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", { "lineHeight": "20px", "letterSpacing": "0.1em", "fontWeight": "500" }],
+                        "metric-xl": ["40px", { "lineHeight": "48px", "fontWeight": "700" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700", "letterSpacing": "0.02em" }],
+                        "body-lg": ["16px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "24px", "fontWeight": "400", "letterSpacing": "0.02em" }],
+                        "headline-lg": ["28px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "label-sm": ["10px", { "lineHeight": "16px", "letterSpacing": "0.15em", "fontWeight": "500" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .topo-bg {
+            background-color: #0a0a0a;
+            background-image: 
+                radial-gradient(circle at center, rgba(255,255,255,0.03) 0, transparent 1px),
+                radial-gradient(circle at center, rgba(255,255,255,0.02) 0, transparent 2px);
+            background-size: 20px 20px, 60px 60px;
+            background-position: 0 0, 10px 10px;
+        }
+        .tech-card {
+            background: rgba(23, 23, 23, 0.8);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: 1px solid rgba(82, 82, 82, 0.5);
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        .tech-card::before, .tech-card::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            pointer-events: none;
+        }
+        .tech-card::before {
+            top: -1px; left: -1px;
+            border-top: 1px solid #f5f5f5;
+            border-left: 1px solid #f5f5f5;
+        }
+        .tech-card::after {
+            bottom: -1px; right: -1px;
+            border-bottom: 1px solid #f5f5f5;
+            border-right: 1px solid #f5f5f5;
+        }
+        .tech-card:hover {
+            border-color: rgba(245, 245, 245, 0.4);
+            background: rgba(23, 23, 23, 0.95);
+        }
+        .tech-data-bg {
+            position: absolute;
+            bottom: 4px;
+            right: 8px;
+            font-size: 8px;
+            color: rgba(245, 245, 245, 0.2);
+            font-family: 'JetBrains Mono', monospace;
+            pointer-events: none;
+            text-align: right;
+            line-height: 1.2;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md topo-bg min-h-screen relative overflow-x-hidden uppercase tracking-wider">
+<div class="flex h-screen overflow-hidden relative z-10">
+<!-- SideNav -->
+<nav class="docked fixed left-0 h-full w-64 border-r border-outline-variant shadow-lg hidden lg:flex flex-col h-full bg-surface-container/95 backdrop-blur-sm z-30">
+<div class="p-6 relative">
+<div class="flex flex-col items-center gap-3 mb-8 border-b border-outline-variant pb-6 text-center">
+<span class="material-symbols-outlined text-primary text-4xl">account_balance</span>
+<div>
+<h1 class="text-headline-lg-mobile font-headline-lg-mobile text-primary tracking-tight">CMD_CTR</h1>
+<p class="text-label-sm font-label-sm text-secondary mt-1">BGD_DIV // SYS_ONLINE</p>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<a class="bg-surface-bright/50 text-primary border-l-2 border-primary px-4 py-3 flex items-center gap-3" href="#">
+<span class="material-symbols-outlined text-sm" data-weight="fill" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="text-label-md font-label-md">Overview</span>
+</a>
+<a class="text-on-surface-variant hover:text-primary px-4 py-3 flex items-center gap-3 border-l-2 border-transparent hover:border-primary/50 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-sm">emergency_home</span>
+<span class="text-label-md font-label-md flex-1">Disasters</span>
+<span class="bg-surface-bright border border-outline-variant px-2 py-0.5 text-xs text-primary">05</span>
+</a>
+<a class="text-on-surface-variant hover:text-primary px-4 py-3 flex items-center gap-3 border-l-2 border-transparent hover:border-primary/50 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-sm">home_pin</span>
+<span class="text-label-md font-label-md flex-1">Shelters</span>
+<span class="bg-surface-bright border border-outline-variant px-2 py-0.5 text-xs text-primary">04</span>
+</a>
+</div>
+</div>
+<div class="mt-auto p-6 flex flex-col gap-2 relative">
+<button class="w-full bg-emergency-red/10 text-emergency-red border border-emergency-red/50 hover:bg-emergency-red/20 py-3 text-label-md font-label-md flex items-center justify-center gap-2 transition-colors relative overflow-hidden group">
+<div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgc3Ryb2tlPSIjZmYwMDAwIiBzdHJva2Utb3BhY2l0eT0iMC4xIiBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0wIDQwaDQwVjBIMHoiLz48L2c+PC9zdmc+')] opacity-20 group-hover:opacity-50 transition-opacity"></div>
+<span class="material-symbols-outlined text-sm">campaign</span>
+                    INIT_ALERT_SEQ
+                </button>
+<div class="border-t border-outline-variant mt-4 pt-4 flex flex-col items-center">
+<a class="text-on-surface-variant hover:text-primary px-4 py-2 flex items-center gap-3 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-sm">terminal</span>
+<span class="text-label-md font-label-md">SYS_SUPPORT</span>
+</a>
+<a class="text-on-surface-variant hover:text-primary px-4 py-2 flex items-center gap-3 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-sm">data_object</span>
+<span class="text-label-md font-label-md">SYS_LOGS</span>
+</a>
+</div>
+</div>
+</nav>
+<!-- Main Content Wrapper -->
+<div class="flex-1 flex flex-col lg:ml-64 relative w-full">
+<!-- TopAppBar -->
+<header class="bg-surface-dim/95 backdrop-blur-sm border-b border-outline-variant flex justify-between items-center h-16 w-full px-container-margin max-w-full z-20">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 bg-primary animate-pulse"></div>
+<div>
+<div class="text-label-md font-label-md font-bold text-primary tracking-widest">DISASTER MANAGEMENT SYSTEM</div>
+</div>
+</div>
+</div>
+<!-- Emergency Banner -->
+<div class="hidden md:flex items-center gap-3 bg-emergency-red/10 border border-emergency-red/50 px-6 py-1.5">
+<span class="material-symbols-outlined text-emergency-red text-sm animate-pulse">warning</span>
+<span class="text-label-sm font-label-sm text-emergency-red tracking-widest">CRITICAL: 2 ACTIVE EVENTS // COX_BAZAR_CYC // SYLHET_FLD</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-label-sm font-label-sm text-primary hidden sm:flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">schedule</span> LIVE - 02:14 AM
+                </span>
+<button class="border border-primary text-primary hover:bg-primary/10 px-4 py-2 text-label-md font-label-md flex items-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-sm">person_add</span>
+                        REG_VICTIM
+                    </button>
+<div class="flex items-center gap-2 border-l border-outline-variant pl-4">
+<button class="text-secondary hover:text-primary transition-colors p-2"><span class="material-symbols-outlined text-sm">notifications</span></button>
+<button class="text-secondary hover:text-primary transition-colors p-2"><span class="material-symbols-outlined text-sm">settings</span></button>
+</div>
+</div>
+</header>
+<!-- Scrollable Content Canvas -->
+<main class="flex-1 overflow-y-auto p-container-margin z-10 relative">
+<div class="max-w-[1600px] mx-auto space-y-container-margin">
+<!-- KPI Row -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<!-- KPI Card 1 -->
+<div class="tech-card p-stack-lg flex flex-col justify-between h-32 group border-emergency-red/30 hover:border-emergency-red/60">
+<div class="tech-data-bg text-emergency-red/30">
+                        SEQ: 001<br/>
+                        STAT: CRIT<br/>
+                        LOC: VAR
+                    </div>
+<div class="absolute top-0 right-0 p-4 opacity-30">
+<span class="material-symbols-outlined text-4xl text-emergency-red">warning</span>
+</div>
+<div class="text-label-sm font-label-sm text-secondary border-b border-outline-variant/50 pb-2">ACTIVE DISASTERS</div>
+<div class="text-metric-xl font-metric-xl text-emergency-red mt-2 text-center">02</div>
+</div>
+<!-- KPI Card 2 -->
+<div class="tech-card p-stack-lg flex flex-col justify-between h-32 group">
+<div class="tech-data-bg">
+                        SEQ: 002<br/>
+                        STAT: NOM<br/>
+                        DB: SYNC
+                    </div>
+<div class="absolute top-0 right-0 p-4 opacity-30">
+<span class="material-symbols-outlined text-4xl text-on-surface">groups</span>
+</div>
+<div class="text-label-sm font-label-sm text-secondary border-b border-outline-variant/50 pb-2">VICTIMS REGISTERED</div>
+<div class="text-metric-xl font-metric-xl text-primary mt-2 text-center">06</div>
+</div>
+<!-- KPI Card 3 -->
+<div class="tech-card p-stack-lg flex flex-col justify-between h-32 group">
+<div class="tech-data-bg">
+                        SEQ: 003<br/>
+                        STAT: ACT<br/>
+                        CAP: 3K
+                    </div>
+<div class="absolute top-0 right-0 p-4 opacity-30">
+<span class="material-symbols-outlined text-4xl text-on-surface">home_pin</span>
+</div>
+<div class="text-label-sm font-label-sm text-secondary border-b border-outline-variant/50 pb-2">OPEN SHELTERS</div>
+<div class="text-metric-xl font-metric-xl text-primary mt-2 text-center">03</div>
+</div>
+<!-- KPI Card 4 -->
+<div class="tech-card p-stack-lg flex flex-col justify-between h-32 group">
+<div class="tech-data-bg">
+                        SEQ: 004<br/>
+                        STAT: DSP<br/>
+                        RTE: CLR
+                    </div>
+<div class="absolute top-0 right-0 p-4 opacity-30">
+<span class="material-symbols-outlined text-4xl text-on-surface">local_shipping</span>
+</div>
+<div class="text-label-sm font-label-sm text-secondary border-b border-outline-variant/50 pb-2">RELIEF DISTRIBUTIONS</div>
+<div class="text-metric-xl font-metric-xl text-primary mt-2 text-center">03</div>
+</div>
+</div>
+<!-- Map & Events Bento -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter h-[500px]">
+<!-- Map Section -->
+<div class="tech-card lg:col-span-2 flex flex-col">
+<div class="p-stack-md border-b border-outline-variant flex justify-between items-center bg-surface-container/50">
+<div class="flex items-center gap-3">
+<div class="w-1.5 h-1.5 bg-primary animate-ping"></div>
+<span class="text-label-md font-label-md font-bold text-primary tracking-widest">LIVE_OPS_MAP</span>
+</div>
+<span class="text-label-sm font-label-sm text-secondary flex items-center gap-2">
+<span class="material-symbols-outlined text-xs">satellite_alt</span> OSM // NO_API // FREE
+                        </span>
+</div>
+<div class="flex-1 relative bg-black p-1">
+<div class="absolute inset-0 border border-outline/30 pointer-events-none z-10 m-2"></div>
+<img class="absolute inset-0 w-full h-full object-cover opacity-50 mix-blend-screen filter grayscale contrast-125" data-alt="A highly detailed, ultra-modern satellite map view of Bangladesh in a dark-mode interface. The map features precise glowing geographical boundaries, major rivers highlighted in subtle cyan, and two prominent pulsating indicator markers (one red, one green) pinpointing disaster zones. The overall aesthetic is high-tech, tactical, and reminiscent of a military or emergency response command center, utilizing deep obsidian backgrounds and neon accents." data-location="Bangladesh" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1qkCTjbRevC87PGARBMUcuZdVoYOz4wtwQCnIHnf5Kc7o9D1bW27BCioqiTuxY13dbEI9Xo0KvxqM0veeKq4WFj5g1Fi9ASyzYnLmi7xKOw4PoytxCamWjcimcpgRvBh3tCjVFAnVxFkRJSH8I_CAewQg_EEajdfl_o2DJU1aZPbujW-klf7LgrYn6yIbZFXUXEXLRHigkqXy30opZ2X2BTr0Q4pcfbOUcHx6BjhizowKBx4KAQMvnPto-p44CSALgxE"/>
+<!-- Simulated Map Controls -->
+<div class="absolute top-4 left-4 flex flex-col gap-1 bg-surface-container/80 border border-outline-variant p-1 z-20">
+<button class="p-2 hover:bg-primary/20 hover:text-primary transition-colors rounded-none text-on-surface"><span class="material-symbols-outlined text-sm">add</span></button>
+<div class="w-full h-px bg-outline-variant"></div>
+<button class="p-2 hover:bg-primary/20 hover:text-primary transition-colors rounded-none text-on-surface"><span class="material-symbols-outlined text-sm">remove</span></button>
+</div>
+<!-- Crosshairs on map -->
+<div class="absolute top-1/4 left-1/3 w-8 h-8 border border-emergency-red/80 rounded-full animate-ping z-20"></div>
+<div class="absolute top-1/4 left-1/3 w-1 h-1 bg-emergency-red z-20"></div>
+<div class="absolute bottom-1/3 right-1/4 w-8 h-8 border border-primary/50 rounded-full animate-ping z-20"></div>
+<div class="absolute bottom-1/3 right-1/4 w-1 h-1 bg-primary z-20"></div>
+</div>
+</div>
+<!-- Active Events -->
+<div class="tech-card flex flex-col">
+<div class="p-stack-md border-b border-outline-variant flex justify-center items-center gap-2 bg-surface-container/50 text-center">
+<span class="material-symbols-outlined text-primary text-sm">rss_feed</span>
+<span class="text-label-md font-label-md font-bold text-primary tracking-widest">ACTIVE_EVENTS (02)</span>
+</div>
+<div class="flex-1 overflow-y-auto p-stack-md space-y-4">
+<!-- Event 1 -->
+<div class="border border-emergency-red/50 p-4 hover:bg-surface-bright/50 transition-colors cursor-pointer bg-surface/30 relative text-center">
+<h3 class="text-headline-lg-mobile font-headline-lg-mobile text-emergency-red mb-2">COX BAZAR CYCLONE 2024</h3>
+<p class="text-label-sm font-label-sm text-secondary mb-3">TYP: CYC // LOC: CTG, COX</p>
+<div class="flex items-center justify-center gap-4 text-label-sm font-label-sm text-on-surface-variant border-t border-outline-variant/30 pt-3">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[10px]">schedule</span> T-MINUS: JUN 01</span>
+<span class="text-emergency-red font-bold">STAT: CRIT</span>
+</div>
+</div>
+<!-- Event 2 -->
+<div class="border border-outline-variant p-4 hover:border-primary/50 transition-colors cursor-pointer bg-surface/30 relative text-center">
+<h3 class="text-headline-lg-mobile font-headline-lg-mobile text-primary mb-2">SYLHET FLOOD 2024</h3>
+<p class="text-label-sm font-label-sm text-secondary mb-3">TYP: FLD // LOC: SYL, SYL</p>
+<div class="flex items-center justify-center gap-4 text-label-sm font-label-sm text-on-surface-variant border-t border-outline-variant/30 pt-3">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[10px]">schedule</span> T-MINUS: MAY 15</span>
+<span class="text-primary font-bold">STAT: SEV</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Shelters List -->
+<div class="tech-card">
+<div class="p-stack-md border-b border-outline-variant flex justify-between items-center bg-surface-container/50">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">house</span>
+<span class="text-label-md font-label-md font-bold text-primary tracking-widest">SHELTER_NET (03)</span>
+</div>
+<a class="text-label-sm font-label-sm text-secondary hover:text-primary flex items-center gap-1 transition-colors border border-transparent hover:border-primary/30 px-2 py-1" href="#">EXTRACT_DATA <span class="material-symbols-outlined text-[10px]">download</span></a>
+</div>
+<div class="divide-y divide-outline-variant/50">
+<!-- Shelter Row 1 -->
+<div class="p-stack-md flex flex-col sm:flex-row justify-between items-center text-center sm:text-left gap-4 hover:bg-surface-bright/20 transition-colors group">
+<div class="w-full flex flex-col items-center sm:items-start">
+<div class="flex items-center gap-3 mb-2 justify-center sm:justify-start">
+<h4 class="text-body-md font-body-md font-bold text-on-surface">COX BAZAR DIST SCHOOL</h4>
+<span class="border border-primary text-primary text-[10px] px-1.5 py-0.5 font-label-sm">STAT: OPEN</span>
+</div>
+<div class="flex flex-wrap items-center justify-center sm:justify-start gap-x-6 gap-y-2 text-label-sm font-label-sm text-secondary">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[10px]">fingerprint</span> ID: S-002</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[10px]">group</span> CAP: 1/800 (0%)</span>
+<span class="flex items-center gap-1 text-primary"><span class="material-symbols-outlined text-[10px]">cell_tower</span> COMM: 01712000010</span>
+</div>
+</div>
+<button class="text-label-sm font-label-sm border border-outline-variant hover:border-primary text-on-surface hover:text-primary px-6 py-2 transition-colors bg-surface/50 whitespace-nowrap">VIEW_DATA</button>
+</div>
+<!-- Shelter Row 2 -->
+<div class="p-stack-md flex flex-col sm:flex-row justify-between items-center text-center sm:text-left gap-4 hover:bg-surface-bright/20 transition-colors group">
+<div class="w-full flex flex-col items-center sm:items-start">
+<div class="flex items-center gap-3 mb-2 justify-center sm:justify-start">
+<h4 class="text-body-md font-body-md font-bold text-on-surface">DHAKA POLYTECHNIC RELIEF</h4>
+<span class="border border-primary text-primary text-[10px] px-1.5 py-0.5 font-label-sm">STAT: OPEN</span>
+</div>
+<div class="flex flex-wrap items-center justify-center sm:justify-start gap-x-6 gap-y-2 text-label-sm font-label-sm text-secondary">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[10px]">fingerprint</span> ID: S-003</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[10px]">group</span> CAP: 1/1200 (0%)</span>
+<span class="flex items-center gap-1 text-primary"><span class="material-symbols-outlined text-[10px]">cell_tower</span> COMM: 01813000020</span>
+</div>
+</div>
+<button class="text-label-sm font-label-sm border border-outline-variant hover:border-primary text-on-surface hover:text-primary px-6 py-2 transition-colors bg-surface/50 whitespace-nowrap">VIEW_DATA</button>
+</div>
+<!-- Shelter Row 3 -->
+<div class="p-stack-md flex flex-col sm:flex-row justify-between items-center text-center sm:text-left gap-4 hover:bg-surface-bright/20 transition-colors group">
+<div class="w-full flex flex-col items-center sm:items-start">
+<div class="flex items-center gap-3 mb-2 justify-center sm:justify-start">
+<h4 class="text-body-md font-body-md font-bold text-on-surface">SYLHET GOVT COLL</h4>
+<span class="border border-primary text-primary text-[10px] px-1.5 py-0.5 font-label-sm">STAT: OPEN</span>
+</div>
+<div class="flex flex-wrap items-center justify-center sm:justify-start gap-x-6 gap-y-2 text-label-sm font-label-sm text-secondary">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[10px]">fingerprint</span> ID: S-001</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[10px]">group</span> CAP: 1/1000 (0%)</span>
+<span class="flex items-center gap-1 text-primary"><span class="material-symbols-outlined text-[10px]">cell_tower</span> COMM: 01911000003</span>
+</div>
+</div>
+<button class="text-label-sm font-label-sm border border-outline-variant hover:border-primary text-on-surface hover:text-primary px-6 py-2 transition-colors bg-surface/50 whitespace-nowrap">VIEW_DATA</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-dim/95 backdrop-blur-sm border-t border-outline-variant flex flex-col md:flex-row justify-between items-center py-stack-md px-container-margin w-full text-center md:text-left mt-auto z-20">
+<div class="text-secondary text-label-sm font-label-sm mb-4 md:mb-0">
+                    SYS_COPYRIGHT // 2024 DISASTER MANAGEMENT SYSTEM // BGD_PUB_INFO
+                </div>
+<div class="flex gap-6 justify-center">
+<a class="text-secondary hover:text-primary transition-colors text-label-sm font-label-sm" href="#">SEC_POLICY</a>
+<a class="text-secondary hover:text-primary transition-colors text-label-sm font-label-sm" href="#">TECH_CREDITS</a>
+<a class="text-secondary hover:text-primary transition-colors text-label-sm font-label-sm" href="#">TOS</a>
+</div>
+</footer>
+</div>
+</div>
+</body></html>
