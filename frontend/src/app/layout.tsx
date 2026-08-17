@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono, Syncopate, Playfair_Display } from "next/font/google";
+import { Inter, JetBrains_Mono, Syncopate, Playfair_Display, Archivo_Black } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "@/components/layout/ClientLayout";
 
@@ -22,6 +22,12 @@ const syncopate = Syncopate({
 const playfair = Playfair_Display({
   variable: "--font-playfair",
   weight: ["400", "600", "700"],
+  subsets: ["latin"],
+});
+
+const archivo = Archivo_Black({
+  variable: "--font-archivo",
+  weight: ["400"],
   subsets: ["latin"],
 });
 
@@ -50,7 +56,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} ${syncopate.variable} ${playfair.variable} antialiased min-h-screen bg-background text-on-background flex flex-col h-screen overflow-hidden`}
+        className={`${inter.variable} ${jetbrainsMono.variable} ${syncopate.variable} ${playfair.variable} ${archivo.variable} antialiased min-h-screen bg-background text-on-background flex flex-col h-screen overflow-hidden`}
       >
         <ClientLayout>{children}</ClientLayout>
       </body>

@@ -9,22 +9,22 @@ const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export default function VictimRegisterPage() {
   const router = useRouter();
-  const [step, setStep] = useState<"register" | "verify">("register");
-  const [regEmail, setRegEmail] = useState("");
-  const [form, setForm] = useState({ full_name: "", email: "", password: "", phone: "", nid_number: "" });
+  const [form, setForm] = useState({
+    name: "", email: "", phone: "", nid: "", dob: "",
+    presentAddress: "", gender: "", password: "", confirmPassword: ""
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [otp, setOtp] = useState("");
-  const [verifyLoading, setVerifyLoading] = useState(false);
-  const [verifyError, setVerifyError] = useState<string | null>(null);
-  const [verified, setVerified] = useState(false);
-  const [victimLinked, setVictimLinked] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  async function handleRegister(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.full_name || !form.email || !form.password) { setError("Name, email, and password are required."); return; }
-    if (form.password.length < 8) { setError("Password must be at least 8 characters."); return; }
-    setLoading(true); setError(null);
+    if (form.password !== form.confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+    setLoading(true);
+    setError(null);
     try {
       const res = await fetch(`${API}/auth/victim/register`, {
         method: "POST",
@@ -33,9 +33,9 @@ export default function VictimRegisterPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Registration failed.");
-      setRegEmail(form.email);
-      setVictimLinked(!!data.victim_linked);
-      setStep("verify");
+      
+      localStorage.setItem("temp_victim_reg_email", form.email);
+      router.push("/victim/verify"); 
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -43,174 +43,166 @@ export default function VictimRegisterPage() {
     }
   }
 
-  async function handleVerify(e: React.FormEvent) {
-    e.preventDefault();
-    if (otp.length < 6) { setVerifyError("Enter the 6-digit OTP."); return; }
-    setVerifyLoading(true); setVerifyError(null);
-    try {
-      const res = await fetch(`${API}/auth/victim/verify`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: regEmail, otp }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Verification failed.");
-      setVerified(true);
-      setTimeout(() => router.push("/victim/login"), 2000);
-    } catch (err: any) {
-      setVerifyError(err.message);
-    } finally {
-      setVerifyLoading(false);
-    }
-  }
-
   return (
     <TacticalAuthLayout
-      title={step === "register" ? "Victim Registration" : "Identity Verification"}
-      subtitle={step === "register" ? "Register to track your shelter assignment and relief status" : `Enter the 6-digit verification code sent to ${regEmail}`}
+      title="Victim Registration"
+      subtitle="Register to request emergency shelter and relief"
       backHref="/"
       illustrationType="victim"
     >
-      {/* Registration Step */}
-      {step === "register" && (
-        <>
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-red-400 text-sm mb-6 flex items-center gap-2">
-              <span className="material-symbols-outlined text-[18px]">error</span>
-              {error}
-            </div>
-          )}
+      {error && (
+        <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-2 text-red-400 text-xs mb-4 flex items-center justify-center gap-2 max-w-[400px] w-full">
+          <span className="material-symbols-outlined text-[14px]">error</span>
+          {error}
+        </div>
+      )}
 
-          <form onSubmit={handleRegister} className="flex flex-col gap-4">
-            <div>
-              <label className="block text-gray-400 text-xs font-medium mb-2">Full Name</label>
+      <form onSubmit={handleSubmit} className="w-full max-w-[400px]">
+        {/* We use a grid for the registration form so it fits nicely inside the circle */}
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          <div className="space-y-1 text-center">
+            <label className="block text-xs text-gray-400 font-mono tracking-widest uppercase mb-0.5">Full Name</label>
+            <input
+              type="text"
+              required
+              placeholder="YOUR NAME"
+              value={form.name}
+              onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+              className="w-full glass-input rounded-full px-4 py-2 text-center text-white placeholder-gray-600 font-mono text-xs"
+            />
+          </div>
+          
+          <div className="space-y-1 text-center">
+            <label className="block text-xs text-gray-400 font-mono tracking-widest uppercase mb-0.5">Email</label>
+            <input
+              type="email"
+              required
+              placeholder="email@example.com"
+              value={form.email}
+              onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
+              className="w-full glass-input rounded-full px-4 py-2 text-center text-white placeholder-gray-600 font-mono text-xs"
+            />
+          </div>
+
+          <div className="space-y-1 text-center">
+            <label className="block text-xs text-gray-400 font-mono tracking-widest uppercase mb-0.5">Phone</label>
+            <input
+              type="text"
+              required
+              placeholder="017XXXXXXXX"
+              value={form.phone}
+              onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
+              className="w-full glass-input rounded-full px-4 py-2 text-center text-white placeholder-gray-600 font-mono text-xs"
+            />
+          </div>
+
+          <div className="space-y-1 text-center">
+            <label className="block text-xs text-gray-400 font-mono tracking-widest uppercase mb-0.5">NID</label>
+            <input
+              type="text"
+              required
+              placeholder="NATIONAL ID"
+              value={form.nid}
+              onChange={(e) => setForm((p) => ({ ...p, nid: e.target.value }))}
+              className="w-full glass-input rounded-full px-4 py-2 text-center text-white placeholder-gray-600 font-mono text-xs"
+            />
+          </div>
+
+          <div className="space-y-1 text-center">
+            <label className="block text-xs text-gray-400 font-mono tracking-widest uppercase mb-0.5">Date of Birth</label>
+            <input
+              type="date"
+              required
+              value={form.dob}
+              onChange={(e) => setForm((p) => ({ ...p, dob: e.target.value }))}
+              className="w-full glass-input rounded-full px-4 py-2 text-center text-white placeholder-gray-600 font-mono text-xs"
+            />
+          </div>
+
+          <div className="space-y-1 text-center">
+            <label className="block text-xs text-gray-400 font-mono tracking-widest uppercase mb-0.5">Gender</label>
+            <select
+              required
+              value={form.gender}
+              onChange={(e) => setForm((p) => ({ ...p, gender: e.target.value }))}
+              className="w-full glass-input rounded-full px-4 py-2 text-center text-gray-300 font-mono text-xs appearance-none"
+            >
+              <option value="">SELECT</option>
+              <option value="MALE">Male</option>
+              <option value="FEMALE">Female</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="space-y-1 text-center mb-3">
+          <label className="block text-xs text-gray-400 font-mono tracking-widest uppercase mb-0.5">Present Address</label>
+          <input
+            type="text"
+            required
+            placeholder="FULL ADDRESS"
+            value={form.presentAddress}
+            onChange={(e) => setForm((p) => ({ ...p, presentAddress: e.target.value }))}
+            className="w-full glass-input rounded-full px-4 py-2 text-center text-white placeholder-gray-600 font-mono text-xs"
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="space-y-1 text-center relative">
+            <label className="block text-xs text-gray-400 font-mono tracking-widest uppercase mb-0.5">Password</label>
+            <div className="relative">
               <input
-                type="text"
-                placeholder="John Doe"
-                value={form.full_name}
-                onChange={(e) => setForm((p) => ({ ...p, full_name: e.target.value }))}
-                className="w-full bg-[#111827]/70 border border-gray-700 focus:border-cyan-400/70 focus:ring-1 focus:ring-cyan-400/70 rounded-lg px-4 py-2.5 text-sm text-gray-100 outline-none transition-all placeholder:text-gray-600"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-400 text-xs font-medium mb-2">Email Address</label>
-              <input
-                type="email"
-                placeholder="you@example.com"
-                value={form.email}
-                onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
-                className="w-full bg-[#111827]/70 border border-gray-700 focus:border-cyan-400/70 focus:ring-1 focus:ring-cyan-400/70 rounded-lg px-4 py-2.5 text-sm text-gray-100 outline-none transition-all placeholder:text-gray-600"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-gray-400 text-xs font-medium mb-2">Phone (Optional)</label>
-                <input
-                  type="tel"
-                  placeholder="+880 1XXXXXXXXX"
-                  value={form.phone}
-                  onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
-                  className="w-full bg-[#111827]/70 border border-gray-700 focus:border-cyan-400/70 focus:ring-1 focus:ring-cyan-400/70 rounded-lg px-4 py-2.5 text-sm text-gray-100 outline-none transition-all placeholder:text-gray-600"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-400 text-xs font-medium mb-2">NID Number (Optional)</label>
-                <input
-                  type="text"
-                  placeholder="National ID"
-                  value={form.nid_number}
-                  onChange={(e) => setForm((p) => ({ ...p, nid_number: e.target.value }))}
-                  className="w-full bg-[#111827]/70 border border-gray-700 focus:border-cyan-400/70 focus:ring-1 focus:ring-cyan-400/70 rounded-lg px-4 py-2.5 text-sm text-gray-100 outline-none transition-all placeholder:text-gray-600"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-gray-400 text-xs font-medium mb-2">Password</label>
-              <input
-                type="password"
+                type={showPassword ? "text" : "password"}
+                required
                 placeholder="••••••••"
                 value={form.password}
                 onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
-                className="w-full bg-[#111827]/70 border border-gray-700 focus:border-cyan-400/70 focus:ring-1 focus:ring-cyan-400/70 rounded-lg px-4 py-2.5 text-sm text-gray-100 outline-none transition-all placeholder:text-gray-600 tracking-widest"
+                className="w-full glass-input rounded-full px-4 py-2 text-center text-white placeholder-gray-600 font-mono text-xs tracking-widest"
+              />
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-3 flex items-center justify-center text-emerald-400/50 hover:text-emerald-400 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[16px]">{showPassword ? "visibility_off" : "visibility"}</span>
+              </button>
+            </div>
+          </div>
+          
+          <div className="space-y-1 text-center relative">
+            <label className="block text-xs text-gray-400 font-mono tracking-widest uppercase mb-0.5">Confirm Password</label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                placeholder="••••••••"
+                value={form.confirmPassword}
+                onChange={(e) => setForm((p) => ({ ...p, confirmPassword: e.target.value }))}
+                className="w-full glass-input rounded-full px-4 py-2 text-center text-white placeholder-gray-600 font-mono text-xs tracking-widest"
               />
             </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 disabled:opacity-70 disabled:cursor-not-allowed text-gray-900 font-bold py-3 rounded-lg transition-all duration-200 active:scale-[0.98] mt-2 flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.3)]"
-            >
-              {loading ? (
-                <><span className="material-symbols-outlined text-[18px] animate-spin">refresh</span> Registering...</>
-              ) : (
-                <>Create Account <span className="material-symbols-outlined text-[18px]">how_to_reg</span></>
-              )}
-            </button>
-          </form>
-
-          <div className="mt-6 text-center text-sm text-gray-400">
-            Already registered?{" "}
-            <Link href="/victim/login" className="text-emerald-400 hover:text-emerald-300 transition-colors">
-              Sign in here
-            </Link>
           </div>
-        </>
-      )}
-
-      {/* Verification Step */}
-      {step === "verify" && (
-        <>
-          {verified ? (
-             <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-4 py-4 text-emerald-400 text-sm mb-6 flex flex-col items-center justify-center gap-2 text-center">
-               <span className="material-symbols-outlined text-[40px] mb-2">verified_user</span>
-               <strong>Identity Verified</strong>
-               <p className="text-xs">Uplink established. Redirecting to login...</p>
-             </div>
+        </div>
+        
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-emerald-400 hover:bg-emerald-300 text-obsidian-900 font-bold py-2.5 px-6 rounded-full transition-all duration-300 shadow-emerald-glow hover:shadow-emerald-glow-strong font-mono tracking-widest uppercase text-sm disabled:opacity-50 flex justify-center items-center gap-2 mx-auto max-w-[200px]"
+        >
+          {loading ? (
+            <><span className="material-symbols-outlined text-[18px] animate-spin">refresh</span> Processing...</>
           ) : (
-            <>
-              {verifyError && (
-                <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-red-400 text-sm mb-6 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[18px]">error</span>
-                  {verifyError}
-                </div>
-              )}
-
-              {victimLinked && (
-                 <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg px-4 py-3 text-cyan-400 text-sm mb-6 flex items-center gap-2">
-                   <span className="material-symbols-outlined text-[18px]">link</span>
-                   Database Match Found: Your NID has been linked to an existing victim record.
-                 </div>
-              )}
-
-              <form onSubmit={handleVerify} className="flex flex-col gap-5">
-                <div>
-                  <label className="block text-cyan-400 text-xs font-bold mb-3 tracking-widest text-center">AUTH_CODE</label>
-                  <input
-                    type="text"
-                    maxLength={6}
-                    placeholder="------"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value.toUpperCase())}
-                    className="w-full bg-[#111827]/70 border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 rounded-lg px-4 py-4 text-3xl font-mono text-center text-white outline-none transition-all placeholder:text-gray-700 tracking-[0.5em]"
-                  />
-                  <p className="text-xs text-gray-500 mt-3 text-center">Code expires in 10 minutes</p>
-                </div>
-                
-                <button
-                  type="submit"
-                  disabled={verifyLoading}
-                  className="w-full bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 disabled:opacity-70 disabled:cursor-not-allowed text-gray-900 font-bold py-3.5 rounded-lg transition-all duration-200 active:scale-[0.98] mt-2 flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)]"
-                >
-                  {verifyLoading ? (
-                    <><span className="material-symbols-outlined text-[20px] animate-spin">refresh</span> Verifying...</>
-                  ) : (
-                    <>Confirm Identity <span className="material-symbols-outlined text-[20px]">fingerprint</span></>
-                  )}
-                </button>
-              </form>
-            </>
+            "Create Account"
           )}
-        </>
-      )}
+        </button>
+      </form>
+
+      <div className="mt-4 text-center text-[10px] text-gray-500 font-mono tracking-widest uppercase">
+        Already registered?{" "}
+        <Link href="/victim/login" className="text-emerald-400 hover:text-emerald-300 transition-colors font-semibold">
+          Secure Login
+        </Link>
+      </div>
     </TacticalAuthLayout>
   );
 }

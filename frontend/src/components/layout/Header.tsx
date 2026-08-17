@@ -90,20 +90,18 @@ export default function Header() {
   };
 
   return (
-    <header className="flex justify-between items-center w-full px-6 h-[48px] bg-surface-container-high border-b border-outline-variant shadow-sm sticky top-0 z-50">
+    <header className="h-20 w-full bg-cobalt rounded-[2rem] shadow-sm flex justify-between items-center px-8 shrink-0 relative z-10 border border-cobalt-dark">
       {/* Left: Brand + Search + Nav */}
-      <div className="flex items-center gap-5">
-        <Link href="/dashboard" className="text-headline-md font-headline-md font-black text-on-surface hover:text-primary transition-colors">
-          Disaster Ops CC
-        </Link>
-
+      <div className="flex items-center gap-8 h-full">
+        <h1 className="font-display text-xl text-white hidden lg:block">Disaster Ops CC</h1>
+        
         {/* Global Search — real API */}
-        <div className="relative hidden md:block group" ref={searchRef}>
-          <span className="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px] transition-colors group-focus-within:text-primary">
+        <div className="relative hidden xl:block w-80 group" ref={searchRef}>
+          <span className="material-symbols-outlined icon-thick absolute left-4 top-1/2 -translate-y-1/2 text-blue-200 text-[18px]">
             {searching ? "progress_activity" : "search"}
           </span>
           <input
-            className="bg-surface-dim border-2 border-transparent focus:border-primary rounded-DEFAULT pl-8 pr-3 py-1 text-body-md font-body-md text-on-surface w-52 focus:w-72 transition-all duration-300 placeholder-on-surface-variant focus:outline-none"
+            className="w-full bg-cobalt-dark rounded-xl py-2.5 pl-11 pr-4 text-sm font-medium text-white placeholder:text-blue-200 border-none focus:ring-2 focus:ring-azure focus:outline-none transition-all duration-300"
             placeholder="Search disasters, victims..."
             type="text"
             value={search}
@@ -112,27 +110,27 @@ export default function Header() {
           />
           {search && (
             <button onClick={() => { setSearch(""); setShowDropdown(false); }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface">
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-200 hover:text-white">
               <span className="material-symbols-outlined text-[16px]">close</span>
             </button>
           )}
 
           {/* Dropdown */}
           {showDropdown && (
-            <div className="absolute top-full left-0 mt-1 w-80 bg-surface border border-outline-variant rounded-xl shadow-2xl overflow-hidden z-50">
+            <div className="absolute top-full left-0 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden z-50">
               {results.length === 0 ? (
-                <div className="px-4 py-3 text-on-surface-variant text-body-md font-body-md">No results found</div>
+                <div className="px-4 py-3 text-gray-500 text-sm font-medium">No results found</div>
               ) : (
                 <>
                   {results.map((r, i) => {
                     const { icon, color } = ICON_MAP[r.type];
                     return (
                       <button key={i} onClick={() => handleSelect(r.href)}
-                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-surface-container transition-colors text-left border-b border-outline-variant last:border-0">
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-azure transition-colors text-left border-b border-gray-100 last:border-0">
                         <span className={`material-symbols-outlined text-[18px] ${color} shrink-0`} style={{ fontVariationSettings: "'FILL' 1" }}>{icon}</span>
                         <div className="min-w-0">
-                          <div className="text-on-surface text-body-md font-body-md truncate">{r.label}</div>
-                          <div className="text-on-surface-variant text-label-caps font-label-caps truncate">{r.sub}</div>
+                          <div className="text-black text-sm font-bold truncate">{r.label}</div>
+                          <div className="text-gray-500 text-xs font-mono truncate uppercase tracking-wider">{r.sub}</div>
                         </div>
                       </button>
                     );
@@ -144,15 +142,15 @@ export default function Header() {
         </div>
 
         {/* Quick Nav */}
-        <nav className="hidden lg:flex gap-1 items-center h-full">
+        <nav className="hidden md:flex h-full items-center gap-8 ml-4">
           {NAV_LINKS.map((link) => {
             const active = pathname === link.href || pathname.startsWith(link.href + "/");
             return (
               <Link key={link.href} href={link.href}
-                className={`h-full flex items-center px-3 py-1 text-body-md font-body-md transition-all border-b-2 ${
+                className={`h-full flex items-center font-bold text-sm transition-colors ${
                   active
-                    ? "text-primary border-primary"
-                    : "text-on-surface-variant border-transparent hover:text-on-surface hover:border-outline"
+                    ? "text-white border-b-4 border-white pt-1"
+                    : "text-blue-200 hover:text-white border-b-4 border-transparent pt-1"
                 }`}>
                 {link.label}
               </Link>
@@ -162,22 +160,29 @@ export default function Header() {
       </div>
 
       {/* Right: Actions */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-4">
         <Link href="/disasters/new"
-          className="bg-emergency-red/10 border border-emergency-red/30 text-emergency-red hover:bg-emergency-red hover:text-on-primary transition-all active:scale-95 px-3 py-1 rounded text-label-caps font-label-caps flex items-center gap-1.5 duration-200">
-          <span className="material-symbols-outlined text-[15px]" style={{ fontVariationSettings: "'FILL' 1" }}>warning</span>
+          className="hidden sm:flex items-center gap-2 px-4 py-2 bg-white text-cobalt hover:bg-gray-100 transition-colors rounded-xl font-bold text-sm shadow-sm">
+          <span className="material-symbols-outlined icon-thick text-[18px]">warning</span>
           New Incident
         </Link>
-        <div className="flex items-center gap-1 text-on-surface-variant">
-          <Link href="/view/dashboard" title="Public View"
-            className="hover:text-primary hover:bg-surface-container-high transition-colors p-1.5 rounded">
-            <span className="material-symbols-outlined text-[20px]">public</span>
-          </Link>
-          <Link href="/query-builder" title="SQL Query Builder"
-            className="hover:text-primary hover:bg-surface-container-high transition-colors p-1.5 rounded">
-            <span className="material-symbols-outlined text-[20px]">manage_search</span>
-          </Link>
-        </div>
+        <div className="h-8 w-[2px] bg-cobalt-light mx-2"></div>
+        <Link href="/view/dashboard"
+          className="text-blue-200 hover:text-white bg-cobalt-dark hover:bg-cobalt-light transition-colors rounded-xl p-2.5 inline-flex"
+          title="Public View"
+        >
+          <span className="material-symbols-outlined icon-thick">public</span>
+        </Link>
+        <button onClick={() => {
+          localStorage.removeItem("dms_token");
+          localStorage.removeItem("dms_user");
+          router.push("/admin/login");
+        }}
+          className="text-blue-200 hover:text-white bg-cobalt-dark hover:bg-cobalt-light transition-colors rounded-xl p-2.5 inline-flex"
+          title="Logout"
+        >
+          <span className="material-symbols-outlined icon-thick">logout</span>
+        </button>
       </div>
     </header>
   );

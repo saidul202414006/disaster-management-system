@@ -181,11 +181,12 @@ export default function PublicDashboardPage() {
             bottom: 4px;
             right: 8px;
             font-size: 10px;
-            color: rgba(245, 245, 245, 0.2);
+            color: rgba(245, 245, 245, 0.3);
             font-family: var(--font-jetbrains-mono), monospace;
             pointer-events: none;
             text-align: right;
             line-height: 1.2;
+            z-index: 0;
         }
         /* Custom Select Styling */
         select.matrix-select {
@@ -198,6 +199,12 @@ export default function PublicDashboardPage() {
         select.matrix-select option {
           background-color: #0a0a0a;
           color: #f5f5f5;
+        }
+        .truncate-multiline {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;  
+          overflow: hidden;
         }
       `}} />
       <div className="flex h-screen overflow-hidden relative z-10 w-full">
@@ -240,31 +247,31 @@ export default function PublicDashboardPage() {
         {/* Main Content Wrapper */}
         <div className="flex-1 flex flex-col lg:ml-64 relative w-full h-full overflow-hidden">
           {/* TopAppBar */}
-          <header className="bg-surface-dim/95 backdrop-blur-sm border-b border-outline-variant flex justify-between items-center h-16 w-full px-6 max-w-full z-20 shrink-0">
+          <header className="bg-surface-dim/95 backdrop-blur-sm border-b border-outline-variant flex flex-col sm:flex-row justify-between items-start sm:items-center h-auto min-h-16 w-full px-6 py-4 sm:py-0 max-w-full z-20 shrink-0 gap-4 sm:gap-2">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-primary animate-pulse"></div>
+                <div className="w-2 h-2 bg-primary animate-pulse shrink-0"></div>
                 <div>
-                  <div className="text-sm font-medium font-mono font-bold text-primary tracking-widest">DISASTER MANAGEMENT SYSTEM</div>
+                  <div className="text-sm font-medium font-mono font-bold text-primary tracking-widest break-words leading-tight">DISASTER MANAGEMENT SYSTEM</div>
                 </div>
               </div>
             </div>
             
             {/* Emergency Banner */}
             {activeDisasters.length > 0 && (
-                <div className="hidden md:flex items-center gap-3 bg-emergency-red/10 border border-emergency-red/50 px-6 py-1.5">
-                    <span className="material-symbols-outlined text-emergency-red text-base animate-pulse">warning</span>
-                    <span className="text-xs font-medium font-mono text-emergency-red tracking-widest truncate max-w-md">
+                <div className="flex-1 w-full sm:w-auto flex items-center gap-3 bg-emergency-red/10 border border-emergency-red/50 px-4 py-2 rounded-sm mx-0 sm:mx-4 overflow-hidden max-w-full lg:max-w-xl">
+                    <span className="material-symbols-outlined text-emergency-red text-base animate-pulse shrink-0">warning</span>
+                    <span className="text-xs font-medium font-mono text-emergency-red tracking-widest truncate-multiline sm:truncate w-full leading-relaxed">
                         CRITICAL: {activeDisasters.length} ACTIVE EVENTS // {activeDisasters.map(d => d.DISASTER_NAME).join(" // ")}
                     </span>
                 </div>
             )}
             
-            <div className="flex items-center gap-4">
-              <span className="text-xs font-medium font-mono text-primary hidden sm:flex items-center gap-2">
+            <div className="flex items-center gap-4 shrink-0 mt-2 sm:mt-0">
+              <span className="text-xs font-medium font-mono text-primary hidden md:flex items-center gap-2">
                 <span className="material-symbols-outlined text-base">schedule</span> LIVE - {lastUpdated ? lastUpdated.toLocaleTimeString("en-BD", { timeZone: "Asia/Dhaka", hour: "2-digit", minute: "2-digit", hour12: true }) : "--:--"}
               </span>
-              <Link href="/victim/register" className="border border-primary text-primary hover:bg-primary/10 px-4 py-2 text-sm font-medium font-mono flex items-center gap-2 transition-colors">
+              <Link href="/victim/register" className="border border-primary text-primary hover:bg-primary/10 px-4 py-2 text-sm font-medium font-mono flex items-center gap-2 transition-colors whitespace-nowrap">
                 <span className="material-symbols-outlined text-base">person_add</span>
                 REG_VICTIM
               </Link>
@@ -272,54 +279,54 @@ export default function PublicDashboardPage() {
           </header>
 
           {/* Scrollable Content Canvas */}
-          <main className="flex-1 overflow-y-auto p-6 z-10 relative">
+          <main className="flex-1 overflow-y-auto p-4 md:p-6 z-10 relative">
             <div className="max-w-[1600px] mx-auto space-y-6 pb-20">
               
               {/* KPI Row */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="tech-card p-6 flex flex-col justify-between h-40 group border-emergency-red/30 hover:border-emergency-red/60">
-                  <div className="tech-data-bg text-emergency-red/30">SEQ: 001<br/>STAT: CRIT<br/>LOC: VAR</div>
-                  <div className="absolute top-0 right-0 p-4 opacity-30">
-                    <span className="material-symbols-outlined text-5xl text-emergency-red">warning</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                <div className="tech-card p-6 flex flex-col justify-between min-h-[10rem] group border-emergency-red/30 hover:border-emergency-red/60 relative">
+                  <div className="tech-data-bg text-emergency-red/30 hidden sm:block">SEQ: 001<br/>STAT: CRIT<br/>LOC: VAR</div>
+                  <div className="absolute top-0 right-0 p-4 opacity-20 pointer-events-none">
+                    <span className="material-symbols-outlined text-[64px] text-emergency-red">warning</span>
                   </div>
-                  <div className="text-sm font-medium font-mono text-secondary border-b border-outline-variant/50 pb-2">ACTIVE DISASTERS</div>
-                  <div className="text-5xl font-bold font-serif text-emergency-red mt-2 text-center">{kpis.active < 10 ? `0${kpis.active}` : kpis.active}</div>
+                  <div className="text-sm font-medium font-mono text-secondary border-b border-outline-variant/50 pb-2 relative z-10">ACTIVE DISASTERS</div>
+                  <div className="text-5xl font-bold font-serif text-emergency-red mt-4 text-left relative z-10">{kpis.active < 10 ? `0${kpis.active}` : kpis.active}</div>
                 </div>
                 
-                <div className="tech-card p-6 flex flex-col justify-between h-40 group">
-                  <div className="tech-data-bg">SEQ: 002<br/>STAT: NOM<br/>DB: SYNC</div>
-                  <div className="absolute top-0 right-0 p-4 opacity-30">
-                    <span className="material-symbols-outlined text-5xl text-on-surface">groups</span>
+                <div className="tech-card p-6 flex flex-col justify-between min-h-[10rem] group relative">
+                  <div className="tech-data-bg hidden sm:block">SEQ: 002<br/>STAT: NOM<br/>DB: SYNC</div>
+                  <div className="absolute top-0 right-0 p-4 opacity-20 pointer-events-none">
+                    <span className="material-symbols-outlined text-[64px] text-on-surface">groups</span>
                   </div>
-                  <div className="text-sm font-medium font-mono text-secondary border-b border-outline-variant/50 pb-2">VICTIMS REGISTERED</div>
-                  <div className="text-5xl font-bold font-serif text-primary mt-2 text-center">{kpis.victims < 10 ? `0${kpis.victims}` : kpis.victims}</div>
+                  <div className="text-sm font-medium font-mono text-secondary border-b border-outline-variant/50 pb-2 relative z-10">VICTIMS REGISTERED</div>
+                  <div className="text-5xl font-bold font-serif text-primary mt-4 text-left relative z-10">{kpis.victims < 10 ? `0${kpis.victims}` : kpis.victims}</div>
                 </div>
                 
-                <div className="tech-card p-6 flex flex-col justify-between h-40 group">
-                  <div className="tech-data-bg">SEQ: 003<br/>STAT: ACT<br/>CAP: 3K</div>
-                  <div className="absolute top-0 right-0 p-4 opacity-30">
-                    <span className="material-symbols-outlined text-5xl text-on-surface">home_pin</span>
+                <div className="tech-card p-6 flex flex-col justify-between min-h-[10rem] group relative">
+                  <div className="tech-data-bg hidden sm:block">SEQ: 003<br/>STAT: ACT<br/>CAP: 3K</div>
+                  <div className="absolute top-0 right-0 p-4 opacity-20 pointer-events-none">
+                    <span className="material-symbols-outlined text-[64px] text-on-surface">home_pin</span>
                   </div>
-                  <div className="text-sm font-medium font-mono text-secondary border-b border-outline-variant/50 pb-2">OPEN SHELTERS</div>
-                  <div className="text-5xl font-bold font-serif text-primary mt-2 text-center">{openShelters.length < 10 ? `0${openShelters.length}` : openShelters.length}</div>
+                  <div className="text-sm font-medium font-mono text-secondary border-b border-outline-variant/50 pb-2 relative z-10">OPEN SHELTERS</div>
+                  <div className="text-5xl font-bold font-serif text-primary mt-4 text-left relative z-10">{openShelters.length < 10 ? `0${openShelters.length}` : openShelters.length}</div>
                 </div>
                 
-                <div className="tech-card p-6 flex flex-col justify-between h-40 group">
-                  <div className="tech-data-bg">SEQ: 004<br/>STAT: DSP<br/>RTE: CLR</div>
-                  <div className="absolute top-0 right-0 p-4 opacity-30">
-                    <span className="material-symbols-outlined text-5xl text-on-surface">local_shipping</span>
+                <div className="tech-card p-6 flex flex-col justify-between min-h-[10rem] group relative">
+                  <div className="tech-data-bg hidden sm:block">SEQ: 004<br/>STAT: DSP<br/>RTE: CLR</div>
+                  <div className="absolute top-0 right-0 p-4 opacity-20 pointer-events-none">
+                    <span className="material-symbols-outlined text-[64px] text-on-surface">local_shipping</span>
                   </div>
-                  <div className="text-sm font-medium font-mono text-secondary border-b border-outline-variant/50 pb-2">RELIEF DISTRIBUTIONS</div>
-                  <div className="text-5xl font-bold font-serif text-primary mt-2 text-center">{kpis.distributions < 10 ? `0${kpis.distributions}` : kpis.distributions}</div>
+                  <div className="text-sm font-medium font-mono text-secondary border-b border-outline-variant/50 pb-2 relative z-10">RELIEF DISTRIBUTIONS</div>
+                  <div className="text-5xl font-bold font-serif text-primary mt-4 text-left relative z-10">{kpis.distributions < 10 ? `0${kpis.distributions}` : kpis.distributions}</div>
                 </div>
               </div>
 
               {/* Map Section - Now Full Width */}
               <div className="tech-card flex flex-col overflow-hidden h-[600px]">
-                <div className="p-4 border-b border-outline-variant flex justify-between items-center bg-surface-container/50 z-20">
+                <div className="p-4 border-b border-outline-variant flex justify-between items-center bg-surface-container/50 z-20 flex-wrap gap-2">
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 bg-primary animate-ping"></div>
-                    <span className="text-sm font-medium font-mono font-bold text-primary tracking-widest">LIVE_OPS_MAP</span>
+                    <span className="text-sm font-medium font-mono font-bold text-primary tracking-widest break-words">LIVE_OPS_MAP</span>
                   </div>
                   <span className="text-xs font-medium font-mono text-secondary flex items-center gap-2">
                     <span className="material-symbols-outlined text-sm">satellite_alt</span> OSM // ACTIVE_EVENTS: {activeDisasters.length}
@@ -334,22 +341,22 @@ export default function PublicDashboardPage() {
               </div>
 
               {/* LIVE DATA MATRIX - Nested Hierarchical Table */}
-              <div id="matrix" className="tech-card mt-8">
-                <div className="p-4 border-b border-outline-variant flex flex-col lg:flex-row justify-between items-center bg-surface-container/50 gap-4">
+              <div id="matrix" className="tech-card mt-8 overflow-hidden">
+                <div className="p-4 border-b border-outline-variant flex flex-col xl:flex-row justify-between items-start xl:items-center bg-surface-container/50 gap-4">
                   <div className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-primary text-base">table_chart</span>
-                    <span className="text-sm font-medium font-mono font-bold text-primary tracking-widest">LIVE_DATA_MATRIX (EXPLORER)</span>
+                    <span className="text-sm font-medium font-mono font-bold text-primary tracking-widest break-words">LIVE_DATA_MATRIX (EXPLORER)</span>
                   </div>
                   
                   {/* Matrix Filters */}
-                  <div className="flex flex-wrap items-center justify-center lg:justify-end gap-3 w-full lg:w-auto">
+                  <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
                     {/* Status Filter */}
-                    <div className="flex items-center gap-2 bg-surface/80 border border-outline-variant p-1">
+                    <div className="flex items-center gap-2 bg-surface/80 border border-outline-variant p-1 w-full sm:w-auto">
                       <span className="text-xs font-mono text-secondary pl-2">STAT:</span>
                       <select 
                         value={filterStatus} 
                         onChange={(e) => setFilterStatus(e.target.value)}
-                        className="matrix-select bg-transparent text-primary text-sm font-mono border-none outline-none pr-8 py-1 cursor-pointer"
+                        className="matrix-select bg-transparent text-primary text-sm font-mono border-none outline-none pr-8 py-1 cursor-pointer w-full sm:w-28 truncate"
                       >
                         <option value="All">All</option>
                         <option value="Active">Active</option>
@@ -358,36 +365,36 @@ export default function PublicDashboardPage() {
                     </div>
 
                     {/* Type Filter */}
-                    <div className="flex items-center gap-2 bg-surface/80 border border-outline-variant p-1">
+                    <div className="flex items-center gap-2 bg-surface/80 border border-outline-variant p-1 w-full sm:w-auto">
                       <span className="text-xs font-mono text-secondary pl-2">TYPE:</span>
                       <select 
                         value={filterType} 
                         onChange={(e) => setFilterType(e.target.value)}
-                        className="matrix-select bg-transparent text-primary text-sm font-mono border-none outline-none pr-8 py-1 cursor-pointer w-24 truncate"
+                        className="matrix-select bg-transparent text-primary text-sm font-mono border-none outline-none pr-8 py-1 cursor-pointer w-full sm:w-28 truncate"
                       >
                         {types.map(t => <option key={t} value={t}>{t}</option>)}
                       </select>
                     </div>
 
                     {/* Division Filter */}
-                    <div className="flex items-center gap-2 bg-surface/80 border border-outline-variant p-1">
+                    <div className="flex items-center gap-2 bg-surface/80 border border-outline-variant p-1 w-full sm:w-auto">
                       <span className="text-xs font-mono text-secondary pl-2">DIV:</span>
                       <select 
                         value={filterDivision} 
                         onChange={(e) => setFilterDivision(e.target.value)}
-                        className="matrix-select bg-transparent text-primary text-sm font-mono border-none outline-none pr-8 py-1 cursor-pointer w-24 truncate"
+                        className="matrix-select bg-transparent text-primary text-sm font-mono border-none outline-none pr-8 py-1 cursor-pointer w-full sm:w-28 truncate"
                       >
                         {divisions.map(div => <option key={div} value={div}>{div}</option>)}
                       </select>
                     </div>
 
                     {/* District Filter */}
-                    <div className="flex items-center gap-2 bg-surface/80 border border-outline-variant p-1">
+                    <div className="flex items-center gap-2 bg-surface/80 border border-outline-variant p-1 w-full sm:w-auto">
                       <span className="text-xs font-mono text-secondary pl-2">DIST:</span>
                       <select 
                         value={filterDistrict} 
                         onChange={(e) => setFilterDistrict(e.target.value)}
-                        className="matrix-select bg-transparent text-primary text-sm font-mono border-none outline-none pr-8 py-1 cursor-pointer w-24 truncate"
+                        className="matrix-select bg-transparent text-primary text-sm font-mono border-none outline-none pr-8 py-1 cursor-pointer w-full sm:w-28 truncate"
                       >
                         {districts.map(dist => <option key={dist} value={dist}>{dist}</option>)}
                       </select>
@@ -396,7 +403,7 @@ export default function PublicDashboardPage() {
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
+                  <table className="w-full text-left border-collapse min-w-[800px]">
                     <thead className="bg-surface-bright/20 border-b border-outline-variant">
                       <tr>
                         <th className="p-4 text-xs font-medium font-mono text-secondary font-bold">DISASTER_NAME</th>
@@ -427,9 +434,9 @@ export default function PublicDashboardPage() {
                               className={`hover:bg-surface-bright/10 transition-colors cursor-pointer ${isExpanded ? 'bg-surface-bright/20' : ''}`}
                               onClick={() => setExpandedDisaster(isExpanded ? null : d.DISASTER_NAME)}
                             >
-                              <td className="p-4 text-sm font-bold text-on-surface">{d.DISASTER_NAME}</td>
-                              <td className="p-4 text-sm text-primary">{d.DISASTER_TYPE}</td>
-                              <td className="p-4 text-sm text-secondary">{d.DISTRICT ? `${d.DIVISION} // ${d.DISTRICT}` : d.DIVISION}</td>
+                              <td className="p-4 text-sm font-bold text-on-surface break-words max-w-[200px]">{d.DISASTER_NAME}</td>
+                              <td className="p-4 text-sm text-primary break-words max-w-[150px]">{d.DISASTER_TYPE}</td>
+                              <td className="p-4 text-sm text-secondary break-words max-w-[200px]">{d.DISTRICT ? `${d.DIVISION} // ${d.DISTRICT}` : d.DIVISION}</td>
                               <td className="p-4 text-sm">
                                 {isActive ? (
                                     <span className="text-emergency-red font-bold flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emergency-red animate-pulse"></span>ACTIVE</span>
@@ -439,7 +446,7 @@ export default function PublicDashboardPage() {
                               </td>
                               <td className="p-4 text-sm font-mono text-primary font-bold">{dShelters.length}</td>
                               <td className="p-4 text-right">
-                                <button className="text-secondary hover:text-primary transition-colors">
+                                <button className="text-secondary hover:text-primary transition-colors p-2">
                                   <span className={`material-symbols-outlined transition-transform duration-300 ${isExpanded ? 'rotate-180 text-primary' : ''}`}>
                                     expand_more
                                   </span>
@@ -451,8 +458,8 @@ export default function PublicDashboardPage() {
                             {isExpanded && (
                               <tr className="bg-black/40 border-b-2 border-primary/20">
                                 <td colSpan={6} className="p-0">
-                                  <div className="p-6 border-l-2 border-primary ml-8 my-4 bg-surface-container/50">
-                                    <h4 className="text-xs font-bold text-primary mb-4 flex items-center gap-2">
+                                  <div className="p-4 sm:p-6 border-l-2 border-primary ml-4 sm:ml-8 my-4 bg-surface-container/50 overflow-x-auto">
+                                    <h4 className="text-xs font-bold text-primary mb-4 flex items-center gap-2 whitespace-nowrap">
                                       <span className="material-symbols-outlined text-sm">account_tree</span>
                                       LINKED_SHELTERS_NETWORK
                                     </h4>
@@ -460,7 +467,7 @@ export default function PublicDashboardPage() {
                                     {dShelters.length === 0 ? (
                                       <div className="text-sm text-secondary opacity-70">NO_SHELTERS_ALLOCATED</div>
                                     ) : (
-                                      <table className="w-full text-left">
+                                      <table className="w-full text-left min-w-[600px]">
                                         <thead className="border-b border-outline-variant/50">
                                           <tr>
                                             <th className="py-2 text-xs text-secondary">SHELTER_ID</th>
@@ -476,7 +483,7 @@ export default function PublicDashboardPage() {
                                             return (
                                               <tr key={sIdx} className="hover:bg-surface-bright/20">
                                                 <td className="py-3 text-sm font-mono text-primary">{s.SHELTER_ID}</td>
-                                                <td className="py-3 text-sm text-on-surface">{s.SHELTER_NAME}</td>
+                                                <td className="py-3 text-sm text-on-surface truncate max-w-[200px]" title={s.SHELTER_NAME}>{s.SHELTER_NAME}</td>
                                                 <td className="py-3 text-sm">
                                                   {s.CURRENT_STATUS === 'Open' ? (
                                                     <span className="text-success text-xs font-bold border border-success/30 px-2 py-0.5">OPEN</span>
@@ -517,11 +524,11 @@ export default function PublicDashboardPage() {
           </main>
           
           {/* Footer */}
-          <footer className="bg-surface-dim/95 backdrop-blur-sm border-t border-outline-variant flex flex-col md:flex-row justify-between items-center py-4 px-6 w-full text-center md:text-left z-20 shrink-0">
-            <div className="text-secondary text-xs font-medium font-mono mb-4 md:mb-0">
+          <footer className="bg-surface-dim/95 backdrop-blur-sm border-t border-outline-variant flex flex-col md:flex-row justify-between items-center py-4 px-6 w-full text-center md:text-left z-20 shrink-0 gap-4 md:gap-0">
+            <div className="text-secondary text-xs font-medium font-mono">
               SYS_COPYRIGHT // 2024 DISASTER MANAGEMENT SYSTEM // BGD_PUB_INFO
             </div>
-            <div className="flex gap-6 justify-center">
+            <div className="flex gap-4 sm:gap-6 justify-center flex-wrap">
               <a className="text-secondary hover:text-primary transition-colors text-xs font-medium font-mono" href="#">SEC_POLICY</a>
               <a className="text-secondary hover:text-primary transition-colors text-xs font-medium font-mono" href="#">TECH_CREDITS</a>
               <a className="text-secondary hover:text-primary transition-colors text-xs font-medium font-mono" href="#">TOS</a>

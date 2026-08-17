@@ -21,16 +21,16 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     return <>{children}</>;
   }
 
-  // Admin shell layout — Header + Sidebar
+  // Admin shell layout — Sidebar + Main Workspace (Header + Content)
   return (
-    <>
-      <Header />
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar />
-        <main className="flex-1 overflow-y-auto bg-navy-bg relative">
+    <div className="bg-white text-black font-body h-screen w-full flex overflow-hidden p-2 md:p-4 gap-4">
+      <Sidebar />
+      <div className="flex-1 flex flex-col h-full overflow-hidden gap-4">
+        <Header />
+        <main className="flex-1 overflow-y-auto pr-2 pb-4">
           {children}
         </main>
       </div>
-    </>
+    </div>
   );
 }

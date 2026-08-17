@@ -3,16 +3,14 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
 import { getDashboardData } from "@/services/api";
 
 // Quick actions are static UI config, not from DB
 const QUICK_ACTIONS = [
-  { id: 1, title: "Register Victim", icon: "person_add", iconColor: "text-command-blue", href: "/victims" },
-  { id: 2, title: "New Incident", icon: "add_alert", iconColor: "text-emergency-red", href: "/disasters/new" },
-  { id: 3, title: "Deploy Personnel", icon: "badge", iconColor: "text-stable-emerald", href: "/personnel" },
-  { id: 4, title: "Public View", icon: "public", iconColor: "text-warning-amber", href: "/view/dashboard" },
+  { id: 1, title: "Register Victim", icon: "person_add", href: "/victims" },
+  { id: 2, title: "New Incident", icon: "warning", href: "/disasters/new" },
+  { id: 3, title: "Deploy Personnel", icon: "group_add", href: "/personnel" },
+  { id: 4, title: "Public View", icon: "public", href: "/view/dashboard" },
 ];
 
 type DashboardData = {
@@ -69,11 +67,11 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4 text-on-surface-variant">
-          <span className="material-symbols-outlined text-[48px] animate-spin text-primary">
+        <div className="flex flex-col items-center gap-4 text-cobalt">
+          <span className="material-symbols-outlined icon-thick text-[48px] animate-spin">
             progress_activity
           </span>
-          <p className="text-body-md font-body-md">Loading operational data...</p>
+          <p className="font-bold">Loading operational data...</p>
         </div>
       </div>
     );
@@ -82,13 +80,13 @@ export default function DashboardPage() {
   if (error) {
     return (
       <div className="flex-1 flex items-center justify-center p-8">
-        <div className="bg-slate-surface border border-emergency-red/30 rounded-lg p-8 max-w-md text-center">
-          <span className="material-symbols-outlined text-emergency-red text-[48px]">error</span>
-          <h2 className="text-headline-md font-headline-md text-on-surface mt-4">Backend Unreachable</h2>
-          <p className="text-body-md font-body-md text-on-surface-variant mt-2">
+        <div className="bg-white border border-red-200 rounded-[2rem] p-8 max-w-md text-center shadow-sm">
+          <span className="material-symbols-outlined icon-thick text-red-500 text-[48px]">error</span>
+          <h2 className="font-display text-2xl text-black mt-4">Backend Unreachable</h2>
+          <p className="text-gray-600 font-medium mt-2">
             Cannot connect to the backend server. Make sure the backend is running on port 5000.
           </p>
-          <p className="text-data-mono font-data-mono text-emergency-red/80 mt-4 text-sm">{error}</p>
+          <p className="font-mono text-red-500 font-bold mt-4 text-xs bg-red-50 p-2 rounded-lg">{error}</p>
         </div>
       </div>
     );
@@ -97,218 +95,199 @@ export default function DashboardPage() {
   const kpis = data?.kpis;
 
   return (
-    <div className="max-w-[1600px] mx-auto flex flex-col gap-4 p-4 lg:p-6">
-      {/* Top bar */}
-      <div className="flex items-center justify-between">
+    <div className="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-4 lg:grid-cols-12 gap-4">
+      {/* Page Header Area */}
+      <div className="col-span-full bg-azure rounded-[2rem] p-8 flex flex-col md:flex-row md:items-end justify-between gap-6 shadow-sm border border-blue-200">
         <div>
-          <h1 className="text-headline-lg font-headline-lg text-on-surface font-bold">Operations Dashboard</h1>
-          <p className="text-label-caps font-label-caps text-on-surface-variant mt-0.5">Disaster Management System — Bangladesh</p>
+          <h2 className="font-display text-4xl text-black uppercase tracking-tight">Operations Dashboard</h2>
+          <p className="font-bold text-black/70 mt-2 text-lg">Disaster Management System — Bangladesh</p>
         </div>
-        <div className="flex items-center gap-2">
-          <a href="/view/dashboard" target="_blank"
-            className="flex items-center gap-2 px-3 py-2 rounded-lg border border-outline-variant text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors text-label-caps font-label-caps">
-            <span className="material-symbols-outlined text-[16px] text-warning-amber">public</span>
+        <div className="flex items-center gap-3">
+          <Link href="/view/dashboard" target="_blank" className="flex items-center gap-2 px-5 py-3 bg-white hover:bg-gray-50 border border-blue-200 rounded-xl text-cobalt font-bold text-sm transition-colors shadow-sm">
+            <span className="material-symbols-outlined icon-thick text-cobalt text-[18px]">public</span>
             Public View
-          </a>
-          <button onClick={handleLogout}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg border border-outline-variant text-on-surface-variant hover:text-emergency-red hover:border-emergency-red/30 hover:bg-emergency-red/5 transition-colors text-label-caps font-label-caps">
-            <span className="material-symbols-outlined text-[16px]">logout</span>
+          </Link>
+          <button onClick={handleLogout} className="flex items-center gap-2 px-5 py-3 bg-cobalt hover:bg-cobalt-dark rounded-xl text-white font-bold text-sm transition-colors shadow-sm">
+            <span className="material-symbols-outlined icon-thick text-[18px]">logout</span>
             Logout
           </button>
         </div>
       </div>
 
-      {/* KPI Row */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        {/* Active Disasters */}
-        <Card className="hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group">
-          <div className="absolute inset-0 bg-emergency-red/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-          <div className="flex items-center justify-between text-on-surface-variant">
-            <span className="text-label-caps font-label-caps uppercase">Active Disasters</span>
-            <span className="material-symbols-outlined text-[20px] text-emergency-red animate-pulse">warning</span>
-          </div>
-          <div className="text-display-kpi font-display-kpi text-on-surface mt-2">
-            {kpis?.ACTIVE_DISASTERS ?? 0}
-          </div>
-          <div className="text-label-caps font-label-caps text-on-surface-variant mt-1">
-            of {kpis?.TOTAL_DISASTERS ?? 0} total
-          </div>
-        </Card>
-
-        {/* Total Victims */}
-        <Card className="hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-          <div className="flex items-center justify-between text-on-surface-variant">
-            <span className="text-label-caps font-label-caps uppercase">Total Victims</span>
-            <span className="material-symbols-outlined text-[20px]">personal_injury</span>
-          </div>
-          <div className="text-display-kpi font-display-kpi text-on-surface mt-2">
-            {kpis?.TOTAL_VICTIMS?.toLocaleString() ?? 0}
-          </div>
-          <div className="text-label-caps font-label-caps text-emergency-red mt-1">
-            {kpis?.MISSING_VICTIMS ?? 0} missing
-          </div>
-        </Card>
-
-        {/* Total Shelters */}
-        <Card className="hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-          <div className="flex items-center justify-between text-on-surface-variant">
-            <span className="text-label-caps font-label-caps uppercase">Shelters</span>
-            <span className="material-symbols-outlined text-[20px]">night_shelter</span>
-          </div>
-          <div className="text-display-kpi font-display-kpi text-on-surface mt-2">
-            {kpis?.TOTAL_SHELTERS ?? 0}
-          </div>
-          <div className="text-label-caps font-label-caps text-on-surface-variant mt-1">Total registered</div>
-        </Card>
-
-        {/* Personnel */}
-        <Card className="hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-          <div className="flex items-center justify-between text-on-surface-variant">
-            <span className="text-label-caps font-label-caps uppercase">Personnel</span>
-            <span className="material-symbols-outlined text-[20px]">badge</span>
-          </div>
-          <div className="text-display-kpi font-display-kpi text-on-surface mt-2">
-            {kpis?.TOTAL_PERSONNEL ?? 0}
-          </div>
-          <div className="text-label-caps font-label-caps text-on-surface-variant mt-1">Registered staff</div>
-        </Card>
-
-        {/* Warehouses */}
-        <Card className="hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-          <div className="flex items-center justify-between text-on-surface-variant">
-            <span className="text-label-caps font-label-caps uppercase">Warehouses</span>
-            <span className="material-symbols-outlined text-[20px]">warehouse</span>
-          </div>
-          <div className="text-display-kpi font-display-kpi text-on-surface mt-2">
-            {kpis?.TOTAL_WAREHOUSES ?? 0}
-          </div>
-          <div className="text-label-caps font-label-caps text-stable-emerald mt-1">
-            {kpis?.TOTAL_DONATIONS ?? 0} donations stored
-          </div>
-        </Card>
-
-        {/* Vehicles */}
-        <Card className="hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-          <div className="flex items-center justify-between text-on-surface-variant">
-            <span className="text-label-caps font-label-caps uppercase">Vehicles</span>
-            <span className="material-symbols-outlined text-[20px]">directions_car</span>
-          </div>
-          <div className="text-display-kpi font-display-kpi text-on-surface mt-2">
-            {kpis?.TOTAL_VEHICLES ?? 0}
-          </div>
-          <div className="text-label-caps font-label-caps text-stable-emerald mt-1">
-            {kpis?.AVAILABLE_VEHICLES ?? 0} available
-          </div>
-        </Card>
-
-        {/* Quick Actions — span full width on last row */}
-        <Card className="col-span-2 md:col-span-3 lg:col-span-8 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-          <div className="text-label-caps font-label-caps text-on-surface-variant mb-3">Quick Actions</div>
-          <div className="flex flex-wrap gap-3">
-            {QUICK_ACTIONS.map((action) => (
-              <Link
-                key={action.id}
-                href={action.href}
-                className="flex items-center gap-3 px-4 py-2 rounded-lg border border-outline-variant hover:bg-surface-container-high hover:border-primary/30 transition-all"
-              >
-                <span className={`material-symbols-outlined text-[18px] ${action.iconColor}`}>
-                  {action.icon}
-                </span>
-                <span className="text-body-md font-body-md text-on-surface">{action.title}</span>
-              </Link>
-            ))}
-          </div>
-        </Card>
+      {/* Metric Card 1: Active Disasters (High Alert) */}
+      <div className="col-span-1 md:col-span-2 lg:col-span-4 bg-cobalt rounded-[2rem] p-6 flex flex-col justify-between shadow-sm border border-cobalt-dark text-white min-h-[200px]">
+        <div className="flex justify-between items-start mb-4">
+          <span className="font-mono text-sm uppercase tracking-widest font-bold opacity-90">Active Disasters</span>
+          <span className="material-symbols-outlined icon-thick text-[28px] text-red-400 animate-pulse">warning</span>
+        </div>
+        <div>
+          <div className="font-display text-7xl leading-none">{kpis?.ACTIVE_DISASTERS ?? 0}</div>
+          <div className="font-bold text-lg mt-2 opacity-90">of {kpis?.TOTAL_DISASTERS ?? 0} total</div>
+        </div>
       </div>
 
-      {/* Main Content Row */}
-      <div className="grid grid-cols-12 gap-4">
-        {/* Recent Disasters Table */}
-        <div className="col-span-12 lg:col-span-7 bg-slate-surface border border-outline-variant rounded-lg overflow-hidden">
-          <div className="p-4 border-b border-outline-variant flex justify-between items-center">
-            <h2 className="text-headline-md font-headline-md text-on-surface">Recent Disasters</h2>
-            <Link href="/disasters/new" className="text-primary text-label-caps font-label-caps hover:underline">
-              + New Incident
+      {/* Metric Card 2: Total Victims */}
+      <div className="col-span-1 md:col-span-2 lg:col-span-4 bg-cobalt-dark rounded-[2rem] p-6 flex flex-col justify-between shadow-sm border border-cobalt-dark text-white min-h-[200px]">
+        <div className="flex justify-between items-start mb-4">
+          <span className="font-mono text-sm uppercase tracking-widest font-bold opacity-90">Total Victims</span>
+          <span className="material-symbols-outlined icon-thick text-[28px] opacity-90">person</span>
+        </div>
+        <div>
+          <div className="font-display text-7xl leading-none">{kpis?.TOTAL_VICTIMS?.toLocaleString() ?? 0}</div>
+          <div className="font-bold text-lg mt-2 text-azure bg-white/20 inline-block px-3 py-1 rounded-lg">{kpis?.MISSING_VICTIMS ?? 0} missing</div>
+        </div>
+      </div>
+
+      {/* Metric Card 3: Shelters */}
+      <div className="col-span-1 md:col-span-2 lg:col-span-4 bg-azure rounded-[2rem] p-6 flex flex-col justify-between shadow-sm border border-blue-100 min-h-[200px]">
+        <div className="flex justify-between items-start mb-4">
+          <span className="font-mono text-sm text-cobalt uppercase tracking-widest font-bold">Shelters</span>
+          <span className="material-symbols-outlined icon-thick text-[28px] text-cobalt/50">home_pin</span>
+        </div>
+        <div>
+          <div className="font-display text-7xl text-black leading-none">{kpis?.TOTAL_SHELTERS ?? 0}</div>
+          <div className="font-bold text-cobalt/80 text-lg mt-2">Total registered</div>
+        </div>
+      </div>
+
+      {/* Metric Card 4: Personnel */}
+      <div className="col-span-1 md:col-span-2 lg:col-span-4 bg-azure rounded-[2rem] p-6 flex flex-col justify-between shadow-sm border border-blue-100 min-h-[200px]">
+        <div className="flex justify-between items-start mb-4">
+          <span className="font-mono text-sm text-cobalt uppercase tracking-widest font-bold">Personnel</span>
+          <span className="material-symbols-outlined icon-thick text-[28px] text-cobalt/50">group</span>
+        </div>
+        <div>
+          <div className="font-display text-7xl text-black leading-none">{kpis?.TOTAL_PERSONNEL ?? 0}</div>
+          <div className="font-bold text-cobalt/80 text-lg mt-2">Registered staff</div>
+        </div>
+      </div>
+
+      {/* Metric Card 5: Warehouses */}
+      <div className="col-span-1 md:col-span-2 lg:col-span-4 bg-azure rounded-[2rem] p-6 flex flex-col justify-between shadow-sm border border-blue-100 min-h-[200px]">
+        <div className="flex justify-between items-start mb-4">
+          <span className="font-mono text-sm text-cobalt uppercase tracking-widest font-bold">Warehouses</span>
+          <span className="material-symbols-outlined icon-thick text-[28px] text-cobalt/50">inventory_2</span>
+        </div>
+        <div>
+          <div className="font-display text-7xl text-black leading-none">{kpis?.TOTAL_WAREHOUSES ?? 0}</div>
+          <div className="font-bold text-cobalt bg-blue-100 inline-block px-3 py-1 rounded-lg text-lg mt-2">{kpis?.TOTAL_DONATIONS ?? 0} donations stored</div>
+        </div>
+      </div>
+
+      {/* Metric Card 6: Vehicles */}
+      <div className="col-span-1 md:col-span-2 lg:col-span-4 bg-azure rounded-[2rem] p-6 flex flex-col justify-between shadow-sm border border-blue-100 min-h-[200px]">
+        <div className="flex justify-between items-start mb-4">
+          <span className="font-mono text-sm text-cobalt uppercase tracking-widest font-bold">Vehicles</span>
+          <span className="material-symbols-outlined icon-thick text-[28px] text-cobalt/50">directions_car</span>
+        </div>
+        <div>
+          <div className="font-display text-7xl text-black leading-none">{kpis?.TOTAL_VEHICLES ?? 0}</div>
+          <div className="font-bold text-cobalt bg-blue-100 inline-block px-3 py-1 rounded-lg text-lg mt-2">{kpis?.AVAILABLE_VEHICLES ?? 0} available</div>
+        </div>
+      </div>
+
+      {/* Quick Actions Strip */}
+      <div className="col-span-full bg-azure border border-blue-200 rounded-[2rem] p-6 shadow-sm flex flex-col md:flex-row items-center gap-6">
+        <p className="font-mono text-sm text-black uppercase tracking-widest font-bold shrink-0">Quick Actions</p>
+        <div className="flex flex-wrap gap-3 w-full">
+          {QUICK_ACTIONS.map((action, i) => (
+            <Link key={action.id} href={action.href}
+              className={`flex-1 md:flex-none flex justify-center items-center gap-2 px-5 py-3 rounded-xl font-bold text-sm transition-colors shadow-sm ${
+                i % 2 !== 0 
+                  ? "bg-cobalt hover:bg-cobalt-dark text-white" 
+                  : "bg-white hover:bg-gray-50 border border-blue-200 text-cobalt"
+              }`}>
+              <span className="material-symbols-outlined icon-thick text-[18px]">{action.icon}</span>
+              {action.title}
             </Link>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-surface-container-low border-b border-outline-variant">
+          ))}
+        </div>
+      </div>
+
+      {/* Recent Disasters Table */}
+      <div className="col-span-1 md:col-span-4 lg:col-span-8 bg-white rounded-[2rem] flex flex-col shadow-sm border border-gray-200 overflow-hidden min-h-[400px]">
+        <div className="p-6 border-b border-gray-200 flex justify-between items-center bg-azure">
+          <h3 className="font-display text-2xl text-black uppercase tracking-tight">Recent Disasters</h3>
+          <Link href="/disasters/new" className="text-white font-bold text-sm bg-cobalt hover:bg-cobalt-dark flex items-center gap-1 px-4 py-2 rounded-xl transition-colors">
+            <span className="material-symbols-outlined icon-thick text-[18px]">add</span> New Incident
+          </Link>
+        </div>
+        <div className="overflow-x-auto p-2">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr>
+                {["Name", "Type", "Division", "District", "Duration"].map((h) => (
+                  <th key={h} className="p-4 font-mono text-xs text-gray-500 uppercase tracking-wider font-bold">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="text-sm font-medium text-black">
+              {data?.recent_disasters?.length === 0 ? (
                 <tr>
-                  {["Name", "Type", "Division", "District", "Duration"].map((h) => (
-                    <th key={h} className="px-4 py-3 text-left text-label-caps font-label-caps text-on-surface-variant">
-                      {h}
-                    </th>
-                  ))}
+                  <td colSpan={5} className="p-8 text-center text-gray-500 font-bold">
+                    No disasters recorded yet.
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-outline-variant/50">
-                {data?.recent_disasters?.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-on-surface-variant text-body-md font-body-md">
-                      No disasters recorded yet.
+              ) : (
+                data?.recent_disasters?.map((d) => (
+                  <tr key={d.DISASTER_NAME} className="hover:bg-azure transition-colors group border-b border-gray-100 last:border-none">
+                    <td className="p-4 font-bold text-cobalt">{d.DISASTER_NAME}</td>
+                    <td className="p-4">
+                      <span className="inline-flex items-center px-3 py-1 rounded-lg bg-blue-100 text-cobalt font-bold text-xs uppercase tracking-wide">
+                        {d.DISASTER_TYPE}
+                      </span>
+                    </td>
+                    <td className="p-4">{d.DIVISION}</td>
+                    <td className="p-4">{d.DISTRICT}</td>
+                    <td className="p-4 font-bold text-gray-600">
+                      {d.DURATION_DAYS != null ? `${d.DURATION_DAYS} days` : <span className="text-cobalt">Ongoing</span>}
                     </td>
                   </tr>
-                ) : (
-                  data?.recent_disasters?.map((d) => (
-                    <tr key={d.DISASTER_NAME} className="hover:bg-surface-container-high transition-colors">
-                      <td className="px-4 py-3 text-data-mono font-data-mono text-primary">{d.DISASTER_NAME}</td>
-                      <td className="px-4 py-3">
-                        <Badge variant="warning">{d.DISASTER_TYPE}</Badge>
-                      </td>
-                      <td className="px-4 py-3 text-body-md font-body-md">{d.DIVISION}</td>
-                      <td className="px-4 py-3 text-body-md font-body-md">{d.DISTRICT}</td>
-                      <td className="px-4 py-3 text-data-mono font-data-mono text-on-surface-variant">
-                        {d.DURATION_DAYS != null ? `${d.DURATION_DAYS} days` : "Ongoing"}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
+      </div>
 
-        {/* Shelter Capacity Panel */}
-        <div className="col-span-12 lg:col-span-5 bg-slate-surface border border-outline-variant rounded-lg overflow-hidden">
-          <div className="p-4 border-b border-outline-variant flex justify-between items-center">
-            <h2 className="text-headline-md font-headline-md text-on-surface">Shelter Occupancy</h2>
-            <Link href="/shelters" className="text-primary text-label-caps font-label-caps hover:underline">
-              View All
-            </Link>
-          </div>
-          <div className="p-4 flex flex-col gap-4">
-            {data?.shelter_stats?.length === 0 ? (
-              <p className="text-on-surface-variant text-body-md font-body-md text-center py-4">
-                No shelters registered yet.
-              </p>
-            ) : (
-              data?.shelter_stats?.map((s) => {
-                const pct = s.CAPACITY > 0 ? Math.round((s.CURRENT_OCCUPANCY / s.CAPACITY) * 100) : 0;
-                const barColor =
-                  pct >= 90 ? "bg-emergency-red" : pct >= 70 ? "bg-warning-amber" : "bg-stable-emerald";
-                return (
-                  <div key={s.SHELTER_ID}>
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-body-md font-body-md text-on-surface">{s.SHELTER_NAME}</span>
-                      <span className="text-data-mono font-data-mono text-on-surface-variant text-sm">
-                        {s.CURRENT_OCCUPANCY} / {s.CAPACITY}
-                      </span>
-                    </div>
-                    <div className="w-full bg-surface-container-low h-2 rounded-full overflow-hidden">
-                      <div
-                        className={`${barColor} h-full rounded-full transition-all duration-1000 ease-out`}
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                    <div className="text-right text-label-caps font-label-caps text-on-surface-variant mt-0.5">
-                      {pct}% occupancy
-                    </div>
+      {/* Shelter Occupancy */}
+      <div className="col-span-1 md:col-span-4 lg:col-span-4 bg-white rounded-[2rem] flex flex-col shadow-sm border border-gray-200 min-h-[400px]">
+        <div className="p-6 border-b border-gray-200 flex justify-between items-center bg-azure">
+          <h3 className="font-display text-2xl text-black uppercase tracking-tight">Shelter Occupancy</h3>
+          <Link href="/shelters" className="text-white font-bold text-sm hover:bg-cobalt-dark bg-cobalt px-4 py-2 rounded-xl transition-colors">
+            View All
+          </Link>
+        </div>
+        <div className="p-6 flex flex-col gap-6 overflow-y-auto">
+          {data?.shelter_stats?.length === 0 ? (
+            <p className="text-gray-500 font-bold text-sm text-center py-4">
+              No shelters registered yet.
+            </p>
+          ) : (
+            data?.shelter_stats?.map((s) => {
+              const pct = s.CAPACITY > 0 ? Math.round((s.CURRENT_OCCUPANCY / s.CAPACITY) * 100) : 0;
+              const barColor = pct >= 90 ? "bg-red-500" : pct >= 70 ? "bg-yellow-500" : "bg-cobalt";
+              
+              return (
+                <div key={s.SHELTER_ID} className="flex flex-col gap-3">
+                  <div className="flex justify-between items-end">
+                    <span className="font-bold text-sm text-black">{s.SHELTER_NAME}</span>
+                    <span className="font-mono text-xs text-gray-500 font-bold bg-azure px-2 py-1 rounded-md">
+                      {s.CURRENT_OCCUPANCY} / {s.CAPACITY}
+                    </span>
                   </div>
-                );
-              })
-            )}
-          </div>
+                  <div className="w-full h-3 bg-blue-50 rounded-full overflow-hidden">
+                    <div className={`h-full ${barColor} rounded-full transition-all duration-1000`} style={{ width: `${pct}%` }}></div>
+                  </div>
+                  <div className="text-right font-bold text-[10px] uppercase tracking-wider text-gray-500">
+                    {pct === 0 ? "0%" : pct < 1 ? "<1%" : `${pct}%`} occupancy
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
     </div>

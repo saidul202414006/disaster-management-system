@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 
 interface TacticalAuthLayoutProps {
@@ -18,92 +18,147 @@ export default function TacticalAuthLayout({
   backHref,
   illustrationType,
 }: TacticalAuthLayoutProps) {
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isAdmin = illustrationType === "admin";
+  
+  // Theme Variables for CSS Custom Properties
+  const themeStyle = {
+    "--theme-color-main": isAdmin ? "#00f0ff" : "#10B981",
+    "--theme-color-glow": isAdmin ? "rgba(0, 240, 255, 0.4)" : "rgba(16, 185, 129, 0.4)",
+    "--theme-color-border": isAdmin ? "rgba(0, 240, 255, 0.2)" : "rgba(16, 185, 129, 0.2)",
+    "--theme-color-bg": isAdmin ? "rgba(0, 240, 255, 0.05)" : "rgba(16, 185, 129, 0.05)",
+  } as React.CSSProperties;
+
+  const textColorClass = isAdmin ? "text-cyan-400" : "text-emerald-400";
+  const shadowClass = isAdmin ? "shadow-cyan-glow" : "shadow-emerald-glow";
+  const shadowStrongClass = isAdmin ? "shadow-cyan-glow-strong" : "shadow-emerald-glow-strong";
+  const borderTopClass = isAdmin ? "border-t-cyan-400" : "border-t-emerald-400";
+
+  if (!mounted) return <div className="min-h-screen bg-[#06090e]" />;
+
   return (
-    <div className="min-h-screen bg-[#050B14] flex relative overflow-hidden font-sans">
-      {/* Topographical Background Pattern - Global */}
+    <div 
+      className="flex h-screen w-full antialiased font-sans text-slate-200 overflow-hidden relative" 
+      style={{ backgroundColor: "#06090e", ...themeStyle }}
+    >
+      {/* Background Texture & Grid */}
       <div 
-        className="absolute inset-0 z-0 opacity-20 pointer-events-none"
+        className="absolute inset-0 pointer-events-none z-0" 
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='topo' width='100' height='100' patternUnits='userSpaceOnUse'%3E%3Cpath d='M0 100 Q 25 75 50 100 T 100 100 M 0 50 Q 25 25 50 50 T 100 50 M 0 0 Q 25 -25 50 0 T 100 0' fill='none' stroke='%2338bdf8' stroke-width='0.5' opacity='0.3'/%3E%3Cpath d='M0 80 Q 30 60 50 80 T 100 80 M 0 30 Q 30 10 50 30 T 100 30' fill='none' stroke='%2338bdf8' stroke-width='0.5' opacity='0.1'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23topo)'/%3E%3C/svg%3E")`,
-          backgroundSize: '300px 300px'
-        }}
+          backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px)`,
+          backgroundSize: "60px 60px",
+          backgroundPosition: "center center"
+        }} 
+      />
+      <div 
+        className="absolute inset-0 pointer-events-none z-0" 
+        style={{ background: `radial-gradient(circle at center, var(--theme-color-bg) 0%, transparent 70%)` }} 
       />
 
-      {/* LEFT PANEL: Form Container */}
-      <div className="relative z-10 w-full lg:w-[45%] flex items-center justify-center p-4 sm:p-8 lg:p-12 xl:p-20">
+      <main className="flex w-full h-full relative z-10 items-center justify-center">
         
-        {/* Glow Effects behind card */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none z-0"></div>
-
-        <div 
-          className="bg-[#0A111E]/80 backdrop-blur-xl rounded-2xl p-8 sm:p-10 relative overflow-hidden w-full max-w-[450px]"
-          style={{
-            border: '1px solid rgba(34, 211, 238, 0.2)',
-            boxShadow: '0 -15px 40px -15px rgba(34, 211, 238, 0.4), 0 20px 40px -10px rgba(0,0,0,0.7)',
-          }}
-        >
-          {/* Top Cyan Glowing Border line */}
-          <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_10px_rgba(34,211,238,0.8)]"></div>
-
-          {/* Back button */}
-          <Link href={backHref} className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 text-sm font-medium mb-8 transition-colors group w-fit">
-            <span className="material-symbols-outlined text-[18px] group-hover:-translate-x-1 transition-transform">arrow_forward</span>
-            Back
-          </Link>
-
-          {/* Title */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-serif text-white mb-2 tracking-wide font-normal">{title}</h1>
-            <p className="text-gray-400 text-sm leading-relaxed">{subtitle}</p>
-          </div>
-
-          {/* Form Injection */}
-          {children}
-
+        {/* Background Radar */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150vmax] h-[150vmax] sm:w-[120vmax] sm:h-[120vmax] rounded-full border border-white/5 z-0 pointer-events-none" style={{boxShadow: 'inset 0 0 80px var(--theme-color-bg)'}}>
+          <div className="radar-ticks" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-white/5 rounded-full w-[80%] h-[80%]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-white/5 rounded-full w-[60%] h-[60%]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-white/5 rounded-full w-[40%] h-[40%]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-white/5 rounded-full w-[20%] h-[20%]" />
+          
+          <div className="absolute top-0 left-1/2 bottom-0 w-[1px] -translate-x-1/2" style={{ background: 'var(--theme-color-border)' }} />
+          <div className="absolute top-1/2 left-0 right-0 h-[1px] -translate-y-1/2" style={{ background: 'var(--theme-color-border)' }} />
+          
+          <div className="absolute top-0 left-0 w-full h-full rounded-full radar-beam animate-sweep" />
+          
+          <div className="absolute w-1.5 h-1.5 rounded-full animate-pulse-blip" style={{ top: '25%', left: '65%', backgroundColor: 'var(--theme-color-main)' }} />
+          <div className="absolute w-1.5 h-1.5 rounded-full animate-pulse-blip" style={{ top: '75%', left: '80%', backgroundColor: 'var(--theme-color-main)' }} />
+          <div className="absolute w-1.5 h-1.5 rounded-full animate-pulse-blip" style={{ top: '80%', left: '35%', backgroundColor: 'var(--theme-color-main)' }} />
+          <div className="absolute w-1.5 h-1.5 rounded-full animate-pulse-blip" style={{ top: '30%', left: '30%', backgroundColor: 'var(--theme-color-main)' }} />
         </div>
-      </div>
 
-      {/* RIGHT PANEL: Tactical HUD Illustration (Hidden on mobile) */}
-      <div className="hidden lg:flex relative z-10 w-[55%] items-center justify-center border-l border-cyan-500/10 bg-gradient-to-r from-[#050B14] to-[#0A111E]/50">
-        
-        {/* Decorative Grid */}
-        <div className="absolute inset-0 opacity-[0.03]" style={{
-          backgroundImage: "linear-gradient(#ffffff 1px,transparent 1px),linear-gradient(90deg,#ffffff 1px,transparent 1px)",
-          backgroundSize: "40px 40px"
-        }} />
-
-        <div className="relative w-full max-w-[600px] aspect-square rounded-full border-[1px] border-cyan-500/20 flex items-center justify-center">
-          
-          {/* Radar Circles */}
-          <div className="absolute w-[80%] h-[80%] rounded-full border-[1px] border-cyan-500/30 border-dashed animate-[spin_60s_linear_infinite]"></div>
-          <div className="absolute w-[60%] h-[60%] rounded-full border-[1px] border-cyan-500/10 animate-[spin_40s_linear_infinite_reverse]"></div>
-          
-          {/* Radar Scanner Line */}
-          <div className="absolute w-1/2 h-[2px] bg-gradient-to-r from-transparent to-cyan-400 top-1/2 left-1/2 origin-left animate-[spin_4s_linear_infinite] shadow-[0_0_15px_rgba(34,211,238,0.8)] z-20"></div>
-
-          {/* Dynamic Data Stream Overlay */}
-          <div className="absolute z-10 flex flex-col items-center">
-            {illustrationType === "admin" ? (
-               <span className="material-symbols-outlined text-[100px] text-cyan-500/20 mb-4">admin_panel_settings</span>
-            ) : (
-               <span className="material-symbols-outlined text-[100px] text-emerald-500/20 mb-4">group</span>
-            )}
-            
-            <div className="text-cyan-500/40 font-mono text-xs tracking-[0.2em] text-center space-y-1">
-              <p>UPLINK ESTABLISHED</p>
-              <p>ENCRYPTED CONNECTION</p>
-              <p className="animate-pulse">AWAITING CREDENTIALS...</p>
+        {/* Orbiting Nodes */}
+        <div className="absolute top-1/2 left-1/2 animate-orbit1 z-[5]">
+          <div className={`glass-panel p-4 rounded-lg ${shadowClass} transform -translate-x-1/2 -translate-y-1/2 min-w-[200px]`}>
+            <div className={`border-b ${isAdmin ? 'border-cyan-400/50' : 'border-emerald-400/50'} pb-1 mb-2 px-2 flex items-center gap-2`}>
+              <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${isAdmin ? 'bg-cyan-400' : 'bg-emerald-400'}`} />
+              <span className={`${textColorClass} font-mono text-xs tracking-widest uppercase`}>Uplink Status</span>
+            </div>
+            <div className={`font-mono text-[9px] ${textColorClass} opacity-80 space-y-1 pl-2`}>
+              <p>CONNECTION ESTABLISHED</p>
+              <p>ENCRYPTION: AES-256-GCM</p>
+              <p>AWAITING CREDENTIALS...</p>
             </div>
           </div>
-          
-          {/* Corner Decorators */}
-          <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-cyan-500/50"></div>
-          <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-cyan-500/50"></div>
-          <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-cyan-500/50"></div>
-          <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-cyan-500/50"></div>
-
         </div>
-      </div>
+
+        <div className="absolute top-1/2 left-1/2 animate-orbit2 z-[5]">
+          <div className={`glass-panel p-4 rounded-lg ${shadowClass} transform -translate-x-1/2 -translate-y-1/2 min-w-[180px]`}>
+            <div className={`border-b ${isAdmin ? 'border-cyan-400/50' : 'border-emerald-400/50'} pb-1 mb-2 px-2`}>
+              <span className={`${textColorClass} font-mono text-xs tracking-wider uppercase`}>Node Overview</span>
+            </div>
+            <div className={`font-mono text-[9px] ${textColorClass} opacity-80 space-y-1 pl-2`}>
+              <p>NODE ALPHA: <span className={textColorClass}>ACTIVE</span></p>
+              <p>NODE BETA: DEPLOYED</p>
+              <p>NODE GAMMA: STANDBY</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="absolute top-1/2 left-1/2 animate-orbit3 z-[5]">
+          <div className={`glass-panel p-4 rounded-lg ${shadowClass} transform -translate-x-1/2 -translate-y-1/2 min-w-[160px]`}>
+            <div className={`border-b ${isAdmin ? 'border-cyan-400/50' : 'border-emerald-400/50'} pb-1 mb-2 px-2`}>
+              <span className={`${textColorClass} font-mono text-xs tracking-wider uppercase`}>Telemetry</span>
+            </div>
+            <div className={`font-mono text-[9px] ${textColorClass} opacity-80 space-y-1 pl-2`}>
+              <p>SECURE CHANNEL: 0x8F9A</p>
+              <p>LAT: 23.8103° N</p>
+              <p>LNG: 90.4125° E</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="absolute top-1/2 left-1/2 animate-orbit4 z-[5]">
+          <div className={`glass-panel p-4 rounded-lg ${shadowClass} transform -translate-x-1/2 -translate-y-1/2 min-w-[160px]`}>
+            <div className={`border-b ${isAdmin ? 'border-cyan-400/50' : 'border-emerald-400/50'} pb-1 mb-2 px-2`}>
+              <span className={`${textColorClass} font-mono text-xs tracking-wider uppercase`}>Access Level</span>
+            </div>
+            <div className={`font-mono text-[9px] ${textColorClass} opacity-80 space-y-1 pl-2`}>
+              <p>AUTHORIZATION REQUIRED</p>
+              <p>ROLE: {isAdmin ? "COMMANDER" : "OPERATOR"}</p>
+              <p className="animate-pulse">VERIFYING IDENTITY...</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Central Login Interface */}
+        <section className="relative z-20 flex items-center justify-center">
+          
+          {/* Back Button Floating Outside Circle */}
+          <Link href={backHref} className={`fixed top-8 left-8 flex items-center gap-2 ${textColorClass} hover:opacity-80 transition-opacity font-mono text-sm tracking-widest group z-50`}>
+            <span className="material-symbols-outlined text-[16px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
+            ABORT
+          </Link>
+
+          <div className={`w-[95vw] max-w-[750px] aspect-square bg-[#0a111a]/60 backdrop-blur-xl rounded-full border border-white/10 border-t-2 ${borderTopClass} ${shadowStrongClass} relative overflow-hidden flex flex-col items-center justify-center transition-all duration-300`}>
+            
+            <div className="p-6 sm:p-10 md:p-12 w-full flex flex-col items-center justify-center text-center mt-4">
+              
+              <div className="text-center mb-4 sm:mb-6">
+                <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl text-white tracking-widest font-light mb-1">{title}</h1>
+                <p className="text-gray-400 text-[10px] sm:text-xs font-light uppercase tracking-widest max-w-[350px] mx-auto leading-relaxed">{subtitle}</p>
+              </div>
+              
+              {children}
+            </div>
+          </div>
+        </section>
+
+      </main>
     </div>
   );
 }

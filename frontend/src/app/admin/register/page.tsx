@@ -9,28 +9,15 @@ const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export default function AdminRegisterPage() {
   const router = useRouter();
-  const [step, setStep] = useState<"register" | "verify">("register");
-  const [regEmail, setRegEmail] = useState("");
-
-  // Step 1 form
-  const [form, setForm] = useState({ full_name: "", email: "", password: "", phone: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
-  // Step 2 (OTP)
-  const [otp, setOtp] = useState("");
-  const [verifyLoading, setVerifyLoading] = useState(false);
-  const [verifyError, setVerifyError] = useState<string | null>(null);
-  const [verified, setVerified] = useState(false);
-
-  async function handleRegister(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.full_name || !form.email || !form.password) {
-      setError("Name, email, and password are required.");
-      return;
-    }
-    if (form.password.length < 8) {
-      setError("Password must be at least 8 characters.");
+    if (!form.name || !form.email || !form.phone || !form.password) {
+      setError("All fields required.");
       return;
     }
     setLoading(true);
@@ -43,8 +30,10 @@ export default function AdminRegisterPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Registration failed.");
-      setRegEmail(form.email);
-      setStep("verify");
+      
+      // Store temp data for OTP verification
+      localStorage.setItem("temp_admin_reg_email", form.email);
+      router.push("/admin/verify"); // Assuming OTP verification page exists
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -52,159 +41,100 @@ export default function AdminRegisterPage() {
     }
   }
 
-  async function handleVerify(e: React.FormEvent) {
-    e.preventDefault();
-    if (!otp || otp.length < 6) {
-      setVerifyError("Please enter the 6-digit OTP.");
-      return;
-    }
-    setVerifyLoading(true);
-    setVerifyError(null);
-    try {
-      const res = await fetch(`${API}/auth/admin/verify`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: regEmail, otp }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Verification failed.");
-      setVerified(true);
-      setTimeout(() => router.push("/admin/login"), 2000);
-    } catch (err: any) {
-      setVerifyError(err.message);
-    } finally {
-      setVerifyLoading(false);
-    }
-  }
-
   return (
     <TacticalAuthLayout
-      title={step === "register" ? "Secure Registration" : "Identity Verification"}
-      subtitle={step === "register" ? "Request access to the tactical mission control dashboard" : `Enter the 6-digit verification code sent to ${regEmail}`}
+      title="Admin Registration"
+      subtitle="Request authorization for tactical command"
       backHref="/"
       illustrationType="admin"
     >
-      {/* Registration Step */}
-      {step === "register" && (
-        <>
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-red-400 text-sm mb-6 flex items-center gap-2">
-              <span className="material-symbols-outlined text-[18px]">error</span>
-              {error}
-            </div>
-          )}
+      {error && (
+        <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-2 text-red-400 text-xs mb-4 flex items-center justify-center gap-2 max-w-[300px] w-full">
+          <span className="material-symbols-outlined text-[14px]">error</span>
+          {error}
+        </div>
+      )}
 
-          <form onSubmit={handleRegister} className="flex flex-col gap-4">
-            <div>
-              <label className="block text-gray-400 text-xs font-medium mb-2">Full Name / Operator ID</label>
-              <input
-                type="text"
-                placeholder="John Doe"
-                value={form.full_name}
-                onChange={(e) => setForm((p) => ({ ...p, full_name: e.target.value }))}
-                className="w-full bg-[#111827]/70 border border-gray-700 focus:border-cyan-400/70 focus:ring-1 focus:ring-cyan-400/70 rounded-lg px-4 py-2.5 text-sm text-gray-100 outline-none transition-all placeholder:text-gray-600"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-400 text-xs font-medium mb-2">Secure Email Address</label>
-              <input
-                type="email"
-                placeholder="admin@example.com"
-                value={form.email}
-                onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
-                className="w-full bg-[#111827]/70 border border-gray-700 focus:border-cyan-400/70 focus:ring-1 focus:ring-cyan-400/70 rounded-lg px-4 py-2.5 text-sm text-gray-100 outline-none transition-all placeholder:text-gray-600"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-400 text-xs font-medium mb-2">Phone Number (Optional)</label>
-              <input
-                type="tel"
-                placeholder="+880 1XXXXXXXXX"
-                value={form.phone}
-                onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
-                className="w-full bg-[#111827]/70 border border-gray-700 focus:border-cyan-400/70 focus:ring-1 focus:ring-cyan-400/70 rounded-lg px-4 py-2.5 text-sm text-gray-100 outline-none transition-all placeholder:text-gray-600"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-400 text-xs font-medium mb-2">Password</label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                value={form.password}
-                onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
-                className="w-full bg-[#111827]/70 border border-gray-700 focus:border-cyan-400/70 focus:ring-1 focus:ring-cyan-400/70 rounded-lg px-4 py-2.5 text-sm text-gray-100 outline-none transition-all placeholder:text-gray-600 tracking-widest"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-cyan-500 to-teal-400 hover:from-cyan-400 hover:to-teal-300 disabled:opacity-70 disabled:cursor-not-allowed text-gray-900 font-bold py-3 rounded-lg transition-all duration-200 active:scale-[0.98] mt-2 flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(34,211,238,0.4)]"
+      <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-[300px]">
+        {/* Name Input */}
+        <div className="space-y-1 text-center">
+          <label className="block text-xs text-gray-400 font-mono tracking-widest uppercase mb-1">Full Name</label>
+          <input
+            type="text"
+            placeholder="COMMANDER ALFA"
+            value={form.name}
+            onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+            className="w-full glass-input rounded-full px-5 py-2.5 text-center text-white placeholder-gray-600 font-mono text-sm"
+          />
+        </div>
+        
+        {/* Email Input */}
+        <div className="space-y-1 text-center">
+          <label className="block text-xs text-gray-400 font-mono tracking-widest uppercase mb-1">Email Address</label>
+          <input
+            type="email"
+            placeholder="admin@example.com"
+            value={form.email}
+            onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
+            className="w-full glass-input rounded-full px-5 py-2.5 text-center text-white placeholder-gray-600 font-mono text-sm"
+          />
+        </div>
+
+        {/* Phone Input */}
+        <div className="space-y-1 text-center">
+          <label className="block text-xs text-gray-400 font-mono tracking-widest uppercase mb-1">Secure Comms (Phone)</label>
+          <input
+            type="text"
+            placeholder="017XXXXXXXX"
+            value={form.phone}
+            onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
+            className="w-full glass-input rounded-full px-5 py-2.5 text-center text-white placeholder-gray-600 font-mono text-sm"
+          />
+        </div>
+        
+        {/* Password Input */}
+        <div className="space-y-1 text-center relative">
+          <label className="block text-xs text-gray-400 font-mono tracking-widest uppercase mb-1">Auth Key (Password)</label>
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="••••••••"
+              value={form.password}
+              onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
+              className="w-full glass-input rounded-full px-5 py-2.5 text-center text-white placeholder-gray-600 font-mono text-sm tracking-widest"
+            />
+            {/* Eye Icon Toggle */}
+            <button 
+              type="button" 
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute inset-y-0 right-4 flex items-center justify-center text-cyan-400/50 hover:text-cyan-400 transition-colors"
             >
-              {loading ? (
-                <><span className="material-symbols-outlined text-[18px] animate-spin">refresh</span> Requesting Access...</>
-              ) : (
-                <>Request Access <span className="material-symbols-outlined text-[18px]">how_to_reg</span></>
-              )}
+              <span className="material-symbols-outlined text-[18px]">
+                {showPassword ? "visibility_off" : "visibility"}
+              </span>
             </button>
-          </form>
-
-          <div className="mt-6 text-center text-sm text-gray-400">
-            Already have clearance?{" "}
-            <Link href="/admin/login" className="text-cyan-400 hover:text-cyan-300 transition-colors">
-              Sign in here
-            </Link>
           </div>
-        </>
-      )}
-
-      {/* Verification Step */}
-      {step === "verify" && (
-        <>
-          {verified ? (
-             <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-4 py-4 text-emerald-400 text-sm mb-6 flex flex-col items-center justify-center gap-2 text-center">
-               <span className="material-symbols-outlined text-[40px] mb-2">verified_user</span>
-               <strong>Identity Verified</strong>
-               <p className="text-xs">Uplink established. Redirecting to login...</p>
-             </div>
+        </div>
+        
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-cyan-400 hover:bg-cyan-300 text-obsidian-900 font-bold py-3 px-6 rounded-full transition-all duration-300 shadow-cyan-glow hover:shadow-cyan-glow-strong mt-6 font-mono tracking-widest uppercase text-sm disabled:opacity-50 flex justify-center items-center gap-2"
+        >
+          {loading ? (
+            <><span className="material-symbols-outlined text-[18px] animate-spin">refresh</span> Processing...</>
           ) : (
-            <>
-              {verifyError && (
-                <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-red-400 text-sm mb-6 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[18px]">error</span>
-                  {verifyError}
-                </div>
-              )}
-
-              <form onSubmit={handleVerify} className="flex flex-col gap-5">
-                <div>
-                  <label className="block text-cyan-400 text-xs font-bold mb-3 tracking-widest text-center">AUTH_CODE</label>
-                  <input
-                    type="text"
-                    maxLength={6}
-                    placeholder="------"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value.toUpperCase())}
-                    className="w-full bg-[#111827]/70 border border-cyan-500/30 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 rounded-lg px-4 py-4 text-3xl font-mono text-center text-white outline-none transition-all placeholder:text-gray-700 tracking-[0.5em]"
-                  />
-                  <p className="text-xs text-gray-500 mt-3 text-center">Code expires in 10 minutes</p>
-                </div>
-                
-                <button
-                  type="submit"
-                  disabled={verifyLoading}
-                  className="w-full bg-gradient-to-r from-cyan-500 to-emerald-400 hover:from-cyan-400 hover:to-emerald-300 disabled:opacity-70 disabled:cursor-not-allowed text-gray-900 font-bold py-3.5 rounded-lg transition-all duration-200 active:scale-[0.98] mt-2 flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(34,211,238,0.4)]"
-                >
-                  {verifyLoading ? (
-                    <><span className="material-symbols-outlined text-[20px] animate-spin">refresh</span> Verifying...</>
-                  ) : (
-                    <>Confirm Identity <span className="material-symbols-outlined text-[20px]">fingerprint</span></>
-                  )}
-                </button>
-              </form>
-            </>
+            "Request Authorization"
           )}
-        </>
-      )}
+        </button>
+      </form>
+
+      <div className="mt-8 text-center text-xs text-gray-500 font-mono tracking-widest uppercase">
+        Have clearance?{" "}
+        <Link href="/admin/login" className="text-cyan-400 hover:text-cyan-300 transition-colors font-semibold">
+          Authenticate
+        </Link>
+      </div>
     </TacticalAuthLayout>
   );
 }

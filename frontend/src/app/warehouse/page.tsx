@@ -1,12 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { LoadingState, ErrorState, EmptyCard } from "@/components/ui/States";
 import { useApi } from "@/hooks/useApi";
 import { getWarehouses, createWarehouse } from "@/services/api";
-import { Card } from "@/components/ui/Card";
 
 type Warehouse = {
   WAREHOUSE_ID: string;
@@ -34,8 +30,24 @@ export default function WarehousePage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  if (loading) return <LoadingState message="Loading warehouse data..." />;
-  if (error) return <ErrorState error={error} onRetry={refetch} />;
+  if (loading) return (
+    <div className="flex-1 flex items-center justify-center">
+      <div className="flex flex-col items-center gap-4 text-cobalt">
+        <span className="material-symbols-outlined icon-thick text-[48px] animate-spin">progress_activity</span>
+        <p className="font-bold">Loading warehouses...</p>
+      </div>
+    </div>
+  );
+  if (error) return (
+    <div className="flex-1 flex items-center justify-center p-8">
+      <div className="bg-white border border-red-200 rounded-[2rem] p-8 text-center shadow-sm">
+        <span className="material-symbols-outlined icon-thick text-red-500 text-[48px]">error</span>
+        <h2 className="font-display text-2xl text-black mt-4">Load Failed</h2>
+        <p className="text-gray-600 font-medium mt-2">{error}</p>
+        <button onClick={refetch} className="mt-4 px-4 py-2 bg-cobalt text-white rounded-xl font-bold">Retry</button>
+      </div>
+    </div>
+  );
 
   const totalValue = warehouses.reduce((s, w) => s + (w.TOTAL_DONATION_VALUE || 0), 0);
 
@@ -61,156 +73,176 @@ export default function WarehousePage() {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 lg:p-6 flex flex-col gap-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-headline-lg font-headline-lg text-on-surface">Warehouse Management</h1>
-          <p className="text-body-md font-body-md text-on-surface-variant mt-1">
-            {warehouses.length} distribution points · Total value: ৳{totalValue.toLocaleString()}
-          </p>
+    <>
+      <div className="max-w-[1600px] mx-auto flex flex-col gap-6 p-2 md:p-4">
+        {/* Header */}
+        <div className="bg-azure rounded-[2rem] p-8 flex flex-col md:flex-row md:items-end justify-between gap-6 shadow-sm border border-blue-200">
+          <div>
+            <h1 className="font-display text-4xl text-black uppercase tracking-tight">Warehouse Management</h1>
+            <p className="font-bold text-black/70 mt-2 text-lg">
+              {warehouses.length} distribution points · Total value: <span className="text-green-600">৳{totalValue.toLocaleString()}</span>
+            </p>
+          </div>
+          <button
+            onClick={() => { setShowForm(true); setSubmitError(null); setSubmitSuccess(false); }}
+            className="flex items-center justify-center gap-2 px-5 py-3 bg-cobalt hover:bg-cobalt-dark rounded-xl text-white font-bold text-sm transition-colors shadow-sm"
+          >
+            <span className="material-symbols-outlined icon-thick text-[18px]">add</span>
+            New Warehouse
+          </button>
         </div>
-        <Button
-          variant="primary"
-          icon={<span className="material-symbols-outlined text-[18px]">add</span>}
-          onClick={() => { setShowForm(true); setSubmitError(null); setSubmitSuccess(false); }}
-        >
-          New Warehouse
-        </Button>
+
+        {/* Cards Grid */}
+        {warehouses.length === 0 ? (
+          <div className="bg-white border border-gray-200 rounded-[2rem] p-12 text-center shadow-sm">
+            <span className="material-symbols-outlined icon-thick text-gray-300 text-[64px]">warehouse</span>
+            <h3 className="font-display text-2xl text-black mt-4">No warehouses registered</h3>
+            <p className="text-gray-500 font-bold mt-2">Click 'New Warehouse' to add one.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {warehouses.map((wh) => {
+              const statusVariant =
+                wh.STATUS?.toUpperCase() === "ACTIVE" ? "success"
+                : wh.STATUS?.toUpperCase() === "MAINTENANCE" ? "danger"
+                : "warning";
+              const indicatorColor =
+                statusVariant === "success" ? "bg-green-500"
+                : statusVariant === "danger" ? "bg-red-500"
+                : "bg-yellow-500";
+              const badgeClasses = 
+                statusVariant === "success" ? "bg-green-100 text-green-700" :
+                statusVariant === "danger" ? "bg-red-100 text-red-700" : "bg-yellow-100 text-yellow-800";
+
+              return (
+                <div
+                  key={wh.WAREHOUSE_ID}
+                  className="bg-white border border-gray-200 rounded-[2rem] p-6 transition-all duration-300 hover:shadow-md hover:border-blue-300 relative overflow-hidden flex flex-col"
+                >
+                  <div className={`absolute top-0 left-0 w-2 h-full ${indicatorColor}`} />
+                  <div className="flex justify-between items-start mb-6 pl-4">
+                    <div>
+                      <h3 className="font-display text-2xl text-black">{wh.WAREHOUSE_NAME}</h3>
+                      <p className="text-sm font-bold text-gray-500 flex items-center gap-1.5 mt-1">
+                        <span className="material-symbols-outlined icon-thick text-[16px] text-gray-400">location_on</span>
+                        {wh.LOCATION}
+                      </p>
+                    </div>
+                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold text-xs uppercase tracking-wide shrink-0 ${badgeClasses}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${indicatorColor} ${statusVariant === "success" ? "animate-pulse" : ""}`} />
+                      {wh.STATUS}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 mb-6 pl-4">
+                    {[
+                      { label: "Capacity", value: wh.CAPACITY?.toLocaleString() },
+                      { label: "Donations", value: wh.TOTAL_DONATIONS_STORED ?? 0 },
+                      { label: "Total Value", value: `৳${(wh.TOTAL_DONATION_VALUE ?? 0).toLocaleString()}`, color: "text-green-600 text-lg" },
+                      { label: "Manager", value: wh.MANAGER_NAME || "—" },
+                    ].map(({ label, value, color }) => (
+                      <div key={label} className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                        <div className="font-mono text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{label}</div>
+                        <div className={`font-bold ${color || "text-black"}`}>{value}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-auto pt-4 border-t border-gray-100 pl-4 flex justify-between items-center">
+                    <span className="font-mono text-xs font-bold text-cobalt bg-blue-50 px-2.5 py-1 rounded-md">
+                      {wh.WAREHOUSE_ID}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
-      {/* Inline Add Form */}
+      {/* ─── Add Warehouse Drawer ─── */}
       {showForm && (
-        <div className="bg-slate-surface border border-primary/30 rounded-xl p-5 shadow-lg animate-fade-down">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-headline-md font-headline-md text-on-surface">Register New Warehouse</h2>
-            <button onClick={() => setShowForm(false)} className="text-on-surface-variant hover:text-on-surface p-1 rounded">
-              <span className="material-symbols-outlined">close</span>
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity"
+          onClick={() => setShowForm(false)}
+        />
+      )}
+      <div
+        className={`fixed inset-y-0 right-0 w-[480px] max-w-[90vw] bg-white border-l border-gray-200 shadow-2xl z-50 transform transition-transform duration-300 ease-[cubic-bezier(0.2,0,0,1)] flex flex-col ${
+          showForm ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="flex justify-between items-center p-6 border-b border-gray-200 bg-azure shrink-0">
+          <div className="flex items-center gap-3">
+            <button
+              className="p-2 rounded-full hover:bg-blue-100 transition-colors text-cobalt"
+              onClick={() => setShowForm(false)}
+            >
+              <span className="material-symbols-outlined icon-thick">close</span>
             </button>
+            <h3 className="font-display text-xl text-black">
+              Register Warehouse
+            </h3>
           </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-5">
           {submitSuccess && (
-            <div className="mb-4 bg-stable-emerald/10 border border-stable-emerald/40 rounded-lg p-3 flex items-center gap-2 text-stable-emerald text-body-md font-body-md">
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-              Warehouse registered successfully!
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3 text-green-700 shadow-sm">
+              <span className="material-symbols-outlined icon-thick">check_circle</span>
+              <span className="font-bold text-sm">Warehouse registered successfully!</span>
             </div>
           )}
           {submitError && (
-            <div className="mb-4 bg-emergency-red/10 border border-emergency-red/30 rounded-lg p-3 text-emergency-red text-body-md font-body-md">
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-600 text-sm font-bold shadow-sm">
               {submitError}
             </div>
           )}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[
-              { key: "warehouse_id", label: "Warehouse ID *", placeholder: "e.g., WH-001" },
-              { key: "warehouse_name", label: "Warehouse Name *", placeholder: "e.g., Dhaka Central Depot" },
-              { key: "location", label: "Location *", placeholder: "e.g., Mirpur, Dhaka" },
-              { key: "capacity", label: "Capacity *", placeholder: "Storage units (number)" },
-              { key: "manager_name", label: "Manager Name", placeholder: "Full name" },
-            ].map(({ key, label, placeholder }) => (
-              <div key={key}>
-                <label className="block text-label-caps font-label-caps text-on-surface-variant mb-1">{label}</label>
-                <input
-                  type={key === "capacity" ? "number" : "text"}
-                  placeholder={placeholder}
-                  value={(form as any)[key]}
-                  onChange={(e) => set(key, e.target.value)}
-                  className="w-full bg-surface-dim border border-outline-variant focus:border-primary rounded-lg px-3 py-2 text-body-md font-body-md text-on-surface outline-none transition-colors"
-                />
-              </div>
-            ))}
-            <div>
-              <label className="block text-label-caps font-label-caps text-on-surface-variant mb-1">Status</label>
-              <select
-                value={form.status}
-                onChange={(e) => set("status", e.target.value)}
-                className="w-full bg-surface-dim border border-outline-variant focus:border-primary rounded-lg px-3 py-2 text-body-md font-body-md text-on-surface outline-none transition-colors"
-              >
-                <option value="Active">Active</option>
-                <option value="Maintenance">Maintenance</option>
-                <option value="Inactive">Inactive</option>
-              </select>
+
+          {[
+            { key: "warehouse_id", label: "Warehouse ID *", placeholder: "e.g., WH-001" },
+            { key: "warehouse_name", label: "Warehouse Name *", placeholder: "e.g., Dhaka Central Depot" },
+            { key: "location", label: "Location *", placeholder: "e.g., Mirpur, Dhaka" },
+            { key: "capacity", label: "Capacity *", placeholder: "Storage units (number)", type: "number" },
+            { key: "manager_name", label: "Manager Name", placeholder: "Full name" },
+          ].map(({ key, label, placeholder, type }) => (
+            <div key={key}>
+              <label className="block font-mono text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{label}</label>
+              <input
+                type={type || "text"}
+                placeholder={placeholder}
+                value={(form as any)[key]}
+                onChange={(e) => set(key, e.target.value)}
+                className="w-full bg-gray-50 border border-gray-200 focus:border-cobalt focus:ring-2 focus:ring-azure rounded-xl px-4 py-3 text-sm font-medium text-black placeholder:text-gray-400 outline-none transition-all"
+              />
             </div>
-          </div>
-          <div className="flex justify-end gap-3 mt-4">
-            <Button variant="ghost" onClick={() => setShowForm(false)}>Cancel</Button>
-            <Button
-              variant="primary"
-              onClick={handleSubmit}
-              disabled={submitting}
-              icon={submitting
-                ? <span className="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
-                : <span className="material-symbols-outlined text-[18px]">save</span>
-              }
+          ))}
+
+          <div>
+            <label className="block font-mono text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Status</label>
+            <select
+              value={form.status}
+              onChange={(e) => set("status", e.target.value)}
+              className="w-full bg-gray-50 border border-gray-200 focus:border-cobalt focus:ring-2 focus:ring-azure rounded-xl px-4 py-3 text-sm font-medium text-black outline-none transition-all"
             >
-              {submitting ? "Saving..." : "Register Warehouse"}
-            </Button>
+              <option value="Active">Active</option>
+              <option value="Maintenance">Maintenance</option>
+              <option value="Inactive">Inactive</option>
+            </select>
           </div>
         </div>
-      )}
 
-      {/* Cards Grid */}
-      {warehouses.length === 0 ? (
-        <div className="bg-slate-surface border border-outline-variant rounded-lg">
-          <EmptyCard message="No warehouses registered yet. Click 'New Warehouse' to add one." icon="warehouse" />
+        <div className="p-6 border-t border-gray-200 bg-gray-50 flex shrink-0">
+          <button
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold text-sm bg-cobalt hover:bg-cobalt-dark text-white transition-colors shadow-sm disabled:opacity-50"
+          >
+            {submitting ? <span className="material-symbols-outlined icon-thick animate-spin">progress_activity</span> : <span className="material-symbols-outlined icon-thick">save</span>}
+            {submitting ? "Saving..." : "Register Warehouse"}
+          </button>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {warehouses.map((wh) => {
-            const statusVariant =
-              wh.STATUS?.toUpperCase() === "ACTIVE" ? "success"
-              : wh.STATUS?.toUpperCase() === "MAINTENANCE" ? "danger"
-              : "warning";
-            const indicatorColor =
-              statusVariant === "success" ? "bg-stable-emerald"
-              : statusVariant === "danger" ? "bg-emergency-red"
-              : "bg-warning-amber";
-
-            return (
-              <div
-                key={wh.WAREHOUSE_ID}
-                className="bg-slate-surface border border-outline-variant rounded-lg p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-primary-container group relative overflow-hidden flex flex-col"
-              >
-                <div className={`absolute top-0 left-0 w-1 h-full ${indicatorColor} rounded-l-lg`} />
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="text-headline-md font-headline-md text-on-surface">{wh.WAREHOUSE_NAME}</h3>
-                    <p className="text-body-md font-body-md text-on-surface-variant flex items-center gap-1 mt-1">
-                      <span className="material-symbols-outlined text-[14px]">location_on</span>
-                      {wh.LOCATION}
-                    </p>
-                  </div>
-                  <Badge variant={statusVariant as any}>
-                    <span className="material-symbols-outlined text-[12px]">
-                      {statusVariant === "success" ? "check_circle" : statusVariant === "danger" ? "build" : "warning"}
-                    </span>
-                    {wh.STATUS}
-                  </Badge>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 mb-4">
-                  {[
-                    { label: "Capacity", value: wh.CAPACITY?.toLocaleString() },
-                    { label: "Donations Stored", value: wh.TOTAL_DONATIONS_STORED ?? 0 },
-                    { label: "Total Value", value: `৳${(wh.TOTAL_DONATION_VALUE ?? 0).toLocaleString()}`, color: "text-stable-emerald" },
-                    { label: "Manager", value: wh.MANAGER_NAME || "—" },
-                  ].map(({ label, value, color }) => (
-                    <div key={label} className="bg-surface-container-low rounded p-3">
-                      <div className="text-label-caps font-label-caps text-on-surface-variant mb-1">{label}</div>
-                      <div className={`text-data-mono font-data-mono text-on-surface ${color || ""}`}>{value}</div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-auto pt-4 border-t border-outline-variant flex justify-between items-center">
-                  <span className="text-data-mono font-data-mono text-on-surface-variant text-[11px] bg-surface-container px-2 py-1 rounded">
-                    {wh.WAREHOUSE_ID}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
+      </div>
+    </>
   );
 }

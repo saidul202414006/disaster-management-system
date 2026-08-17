@@ -69,6 +69,29 @@
   --font-headline-lg-mobile: "Inter", sans-serif;
   --font-data-mono: "JetBrains Mono", monospace;
   --font-body-lg: "Inter", sans-serif;
+  
+  /* Custom Auth Layout Colors */
+  --color-obsidian-900: #06090e;
+  --color-obsidian-800: #0a0f16;
+  --color-obsidian-700: #111823;
+  --color-cyan-400: #00f0ff;
+  --color-cyan-500: #00d4ff;
+  --color-cyan-glow: rgba(0, 240, 255, 0.4);
+
+  /* New Light Admin Theme Colors */
+  --color-cobalt: #0047AB;
+  --color-cobalt-dark: #003580;
+  --color-cobalt-light: #3366CC;
+  --color-azure: #F0F7FF;
+  --color-azure-dark: #D9EBFF;
+  --color-alert-red: #FF2B2B;
+  --color-alert-blue: #2B5FFF;
+  --color-alert-yellow: #FFD000;
+  --color-alert-dark: #1A1A1A;
+
+  --font-display: var(--font-archivo), "sans-serif";
+  --font-body: var(--font-inter), "sans-serif";
+  --font-mono: var(--font-jetbrains-mono), monospace;
 }
 
 @layer base {
@@ -76,4 +99,87 @@
     background-color: var(--color-background);
     color: var(--color-on-background);
   }
+}
+
+/* Auth Layout Utilities & Animations */
+@layer utilities {
+  .shadow-cyan-glow {
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+  }
+  .shadow-cyan-glow-strong {
+    box-shadow: 0 0 35px rgba(0, 240, 255, 0.5);
+  }
+  .shadow-emerald-glow {
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+  }
+  .shadow-emerald-glow-strong {
+    box-shadow: 0 0 35px rgba(16, 185, 129, 0.5);
+  }
+  .glass-panel {
+    background: rgba(10, 15, 22, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--theme-color-border, rgba(0, 240, 255, 0.2));
+  }
+  .glass-input {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--theme-color-border, rgba(0, 240, 255, 0.2));
+    transition: all 0.3s ease;
+  }
+  .glass-input:focus {
+    border-color: var(--theme-color-main, #00f0ff);
+    background: var(--theme-color-bg, rgba(0, 240, 255, 0.05));
+    box-shadow: 0 0 15px var(--theme-color-glow, rgba(0, 240, 255, 0.3));
+    outline: none;
+  }
+}
+
+/* Radar Animations */
+@keyframes sweep {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes pulse-blip {
+  0% { transform: scale(0.95); opacity: 0.5; }
+  50% { transform: scale(1); opacity: 1; box-shadow: 0 0 15px var(--theme-color-main, #00f0ff); }
+  100% { transform: scale(0.95); opacity: 0.5; }
+}
+@keyframes orbit1 {
+  0% { transform: rotate(0deg) translateX(calc(min(375px, 45vw) + 80px)) rotate(0deg); }
+  100% { transform: rotate(360deg) translateX(calc(min(375px, 45vw) + 80px)) rotate(-360deg); }
+}
+@keyframes orbit2 {
+  0% { transform: rotate(120deg) translateX(calc(min(375px, 45vw) + 160px)) rotate(-120deg); }
+  100% { transform: rotate(480deg) translateX(calc(min(375px, 45vw) + 160px)) rotate(-480deg); }
+}
+@keyframes orbit3 {
+  0% { transform: rotate(240deg) translateX(calc(min(375px, 45vw) + 120px)) rotate(-240deg); }
+  100% { transform: rotate(600deg) translateX(calc(min(375px, 45vw) + 120px)) rotate(-600deg); }
+}
+@keyframes orbit4 {
+  0% { transform: rotate(300deg) translateX(calc(min(375px, 45vw) + 100px)) rotate(-300deg); }
+  100% { transform: rotate(660deg) translateX(calc(min(375px, 45vw) + 100px)) rotate(-660deg); }
+}
+
+.animate-sweep { animation: sweep 6s linear infinite; }
+.animate-pulse-blip { animation: pulse-blip 2s infinite; }
+.animate-orbit1 { animation: orbit1 30s linear infinite; }
+.animate-orbit2 { animation: orbit2 45s linear infinite; }
+.animate-orbit3 { animation: orbit3 40s linear infinite; }
+.animate-orbit4 { animation: orbit4 35s linear infinite; }
+
+.radar-beam {
+  background: conic-gradient(from 0deg, rgba(0, 0, 0, 0) 75%, var(--theme-color-glow, rgba(0, 240, 255, 0.3)) 100%);
+  transform-origin: center center;
+}
+.radar-ticks {
+  background: repeating-conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 9deg,
+    var(--theme-color-glow, rgba(0, 240, 255, 0.4)) 9deg,
+    var(--theme-color-glow, rgba(0, 240, 255, 0.4)) 10deg
+  );
+  -webkit-mask-image: radial-gradient(transparent 68%, black 70%);
+  mask-image: radial-gradient(transparent 68%, black 70%);
 }

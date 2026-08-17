@@ -17,6 +17,10 @@ IF EXIST "frontend\.next" (
     echo .next cache deleted.
 )
 
+echo Checking Oracle Database Listener...
+sc start OracleOraDB21Home1TNSListener >nul 2>&1
+
+
 echo Starting Backend...
 start cmd /k "cd backend && npm run dev"
 

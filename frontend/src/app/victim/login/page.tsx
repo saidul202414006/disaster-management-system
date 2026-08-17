@@ -12,10 +12,11 @@ export default function VictimLoginPage() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.email || !form.password) { setError("Please enter your email and password."); return; }
+    if (!form.email || !form.password) { setError("Credentials required."); return; }
     setLoading(true); setError(null);
     try {
       const res = await fetch(`${API}/auth/victim/login`, {
@@ -46,53 +47,68 @@ export default function VictimLoginPage() {
       illustrationType="victim"
     >
       {error && (
-        <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-red-400 text-sm mb-6 flex items-center gap-2">
-          <span className="material-symbols-outlined text-[18px]">error</span>
+        <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-2 text-red-400 text-xs mb-4 flex items-center justify-center gap-2 max-w-[300px] w-full">
+          <span className="material-symbols-outlined text-[14px]">error</span>
           {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        <div>
-          <label className="block text-gray-400 text-xs font-medium mb-2">Registered Email Address</label>
+      <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-[300px]">
+        {/* Email Input */}
+        <div className="space-y-1 text-center">
+          <label className="block text-xs text-gray-400 font-mono tracking-widest uppercase mb-1">Email Address</label>
           <input
             type="email"
             autoComplete="email"
-            placeholder="you@example.com"
+            placeholder="victim@example.com"
             value={form.email}
             onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
-            className="w-full bg-[#111827]/70 border border-gray-700 focus:border-cyan-400/70 focus:ring-1 focus:ring-cyan-400/70 rounded-lg px-4 py-3 text-sm text-gray-100 outline-none transition-all placeholder:text-gray-600"
+            className="w-full glass-input rounded-full px-5 py-2.5 text-center text-white placeholder-gray-600 font-mono text-sm"
           />
         </div>
-        <div>
-          <label className="block text-gray-400 text-xs font-medium mb-2">Password</label>
-          <input
-            type="password"
-            autoComplete="current-password"
-            placeholder="••••••••"
-            value={form.password}
-            onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
-            className="w-full bg-[#111827]/70 border border-gray-700 focus:border-cyan-400/70 focus:ring-1 focus:ring-cyan-400/70 rounded-lg px-4 py-3 text-sm text-gray-100 outline-none transition-all placeholder:text-gray-600 tracking-widest"
-          />
+        
+        {/* Password Input */}
+        <div className="space-y-1 text-center relative">
+          <label className="block text-xs text-gray-400 font-mono tracking-widest uppercase mb-1">Password</label>
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              autoComplete="current-password"
+              placeholder="••••••••"
+              value={form.password}
+              onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
+              className="w-full glass-input rounded-full px-5 py-2.5 text-center text-white placeholder-gray-600 font-mono text-sm tracking-widest"
+            />
+            {/* Eye Icon Toggle */}
+            <button 
+              type="button" 
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute inset-y-0 right-4 flex items-center justify-center text-emerald-400/50 hover:text-emerald-400 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px]">
+                {showPassword ? "visibility_off" : "visibility"}
+              </span>
+            </button>
+          </div>
         </div>
         
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 disabled:opacity-70 disabled:cursor-not-allowed text-gray-900 font-bold py-3.5 rounded-lg transition-all duration-200 active:scale-[0.98] mt-4 flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+          className="w-full bg-emerald-400 hover:bg-emerald-300 text-obsidian-900 font-bold py-3 px-6 rounded-full transition-all duration-300 shadow-emerald-glow hover:shadow-emerald-glow-strong mt-6 font-mono tracking-widest uppercase text-sm disabled:opacity-50 flex justify-center items-center gap-2"
         >
           {loading ? (
-            <><span className="material-symbols-outlined text-[20px] animate-spin">refresh</span> Accessing...</>
+            <><span className="material-symbols-outlined text-[18px] animate-spin">refresh</span> Accessing...</>
           ) : (
-            <>Secure Login <span className="material-symbols-outlined text-[20px]">login</span></>
+            "Secure Login"
           )}
         </button>
       </form>
 
-      <div className="mt-8 text-center text-sm text-gray-400">
+      <div className="mt-8 text-center text-xs text-gray-500 font-mono tracking-widest uppercase">
         Not registered?{" "}
-        <Link href="/victim/register" className="text-emerald-400 hover:text-emerald-300 transition-colors">
-          Create an account
+        <Link href="/victim/register" className="text-emerald-400 hover:text-emerald-300 transition-colors font-semibold">
+          Create Account
         </Link>
       </div>
     </TacticalAuthLayout>

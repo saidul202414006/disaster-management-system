@@ -96,73 +96,59 @@ export default function Sidebar() {
       : "Oracle DB: Disconnected";
 
   return (
-    <aside className="w-[260px] h-full flex flex-col border-r border-outline-variant bg-surface hidden md:flex shrink-0">
-      {/* Logo / Branding */}
-      <div className="p-6 bg-surface-container-low flex flex-col gap-1 border-b border-outline-variant">
-        <span className="text-headline-md font-headline-md font-bold text-primary">
-          Mission Control
-        </span>
-        <span className="text-body-md font-body-md text-on-surface-variant">
-          Disaster Management System
-        </span>
+    <nav className="hidden md:flex flex-col w-64 h-full bg-white rounded-[2rem] shadow-sm shrink-0 relative z-10 overflow-hidden border border-gray-200">
+      {/* Header */}
+      <div className="p-6">
+        <h2 className="font-display text-2xl text-black tracking-tight">Mission Control</h2>
+        <p className="font-mono text-xs text-gray-500 mt-2 uppercase tracking-wider">Disaster System</p>
       </div>
-
-      {/* New Incident CTA */}
-      <div className="p-4">
-        <Link
-          href="/disasters/new"
-          className="w-full bg-surface-container-highest hover:bg-command-blue border border-outline-variant hover:border-transparent text-primary hover:text-on-primary transition-all duration-200 active:scale-95 py-2 rounded-DEFAULT text-label-caps font-label-caps flex items-center justify-center gap-2"
-        >
-          <span className="material-symbols-outlined text-[16px]">add</span>
+      
+      {/* CTA */}
+      <div className="px-6 pb-4">
+        <Link href="/disasters/new" className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-cobalt hover:bg-cobalt-dark text-white rounded-xl transition-colors font-bold text-sm">
+          <span className="material-symbols-outlined icon-thick text-[18px]">add</span>
           New Incident
         </Link>
       </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-3 py-2 flex flex-col gap-1 custom-scrollbar">
-        {NAV_SECTIONS.map((section) => (
-          <div key={section.title || "main"}>
-            {section.title && (
-              <div className="text-label-caps font-label-caps text-on-surface-variant px-3 mt-4 mb-2">
-                {section.title}
-              </div>
-            )}
-            {section.items.map((item) => {
-              const active = isActive(item.href);
-              return (
+      
+      {/* Scrollable Links */}
+      <div className="flex-1 overflow-y-auto py-2 custom-scrollbar">
+        <ul className="flex flex-col gap-1 px-4">
+          {NAV_SECTIONS.flatMap(section => section.items).map((item) => {
+            const active = isActive(item.href);
+            return (
+              <li key={item.href}>
                 <Link
-                  key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-150 ${
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
                     active
-                      ? "bg-primary/10 text-primary font-semibold border-l-2 border-primary pl-[10px]"
-                      : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high"
+                      ? "bg-azure text-cobalt font-bold"
+                      : "text-gray-600 hover:bg-azure hover:text-cobalt"
                   }`}
                 >
                   <span
-                    className="material-symbols-outlined text-[20px] transition-all"
+                    className="material-symbols-outlined icon-thick text-[20px]"
                     style={active ? { fontVariationSettings: "'FILL' 1" } : {}}
                   >
                     {item.icon}
                   </span>
-                  <span className="text-body-md font-body-md">{item.label}</span>
-                  {active && (
-                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
-                  )}
+                  <span className="text-sm">{item.label}</span>
                 </Link>
-              );
-            })}
-          </div>
-        ))}
-      </nav>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
 
-      {/* Footer — DB Status indicator (dynamic) */}
-      <div className="p-3 border-t border-outline-variant shrink-0">
-        <div className="px-3 py-2 rounded-lg bg-surface-container flex items-center gap-2 text-label-caps font-label-caps text-on-surface-variant">
-          <span className={`w-2 h-2 rounded-full shrink-0 ${statusDot}`} />
-          <span className="truncate">{statusText}</span>
+      {/* Footer */}
+      <div className="p-6 bg-gray-50 mt-auto border-t border-gray-100">
+        <div className="flex items-center gap-2 text-gray-500 font-mono text-[10px] uppercase tracking-wider">
+          <span className={`material-symbols-outlined icon-thick text-[14px] ${dbStatus === 'connected' ? 'text-green-500' : 'text-red-500'}`}>
+            database
+          </span>
+          <span>{statusText}</span>
         </div>
       </div>
-    </aside>
+    </nav>
   );
 }

@@ -1,10 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/Table";
-import { LoadingState, ErrorState, EmptyState } from "@/components/ui/States";
 import { useApi } from "@/hooks/useApi";
 import { getPersonnel, createPersonnel } from "@/services/api";
 
@@ -32,12 +28,6 @@ const EMPTY_FORM = {
   team: "",
   specialization: "",
   since_date: "",
-};
-
-const TYPE_BADGE: Record<string, "neutral" | "success" | "info"> = {
-  Personnel: "neutral",
-  Volunteer: "success",
-  "Medical Staff": "info",
 };
 
 export default function PersonnelPage() {
@@ -91,136 +81,171 @@ export default function PersonnelPage() {
     }
   }
 
-  if (loading) return <LoadingState message="Loading personnel records..." />;
-  if (error) return <ErrorState error={error} onRetry={refetch} />;
+  if (loading) return (
+    <div className="flex-1 flex items-center justify-center">
+      <div className="flex flex-col items-center gap-4 text-cobalt">
+        <span className="material-symbols-outlined icon-thick text-[48px] animate-spin">progress_activity</span>
+        <p className="font-bold">Loading personnel...</p>
+      </div>
+    </div>
+  );
+  if (error) return (
+    <div className="flex-1 flex items-center justify-center p-8">
+      <div className="bg-white border border-red-200 rounded-[2rem] p-8 text-center shadow-sm">
+        <span className="material-symbols-outlined icon-thick text-red-500 text-[48px]">error</span>
+        <h2 className="font-display text-2xl text-black mt-4">Load Failed</h2>
+        <p className="text-gray-600 font-medium mt-2">{error}</p>
+        <button onClick={refetch} className="mt-4 px-4 py-2 bg-cobalt text-white rounded-xl font-bold">Retry</button>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 lg:p-6 flex flex-col gap-4">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="max-w-[1600px] mx-auto flex flex-col gap-6 p-2 md:p-4">
+      {/* Header */}
+      <div className="bg-azure rounded-[2rem] p-8 flex flex-col md:flex-row md:items-end justify-between gap-6 shadow-sm border border-blue-200">
         <div>
-          <h1 className="text-headline-lg font-headline-lg text-on-surface">Personnel</h1>
-          <p className="text-body-md font-body-md text-on-surface-variant mt-1">
-            {personnel.length} total — includes Volunteers and Medical Staff (ISA Specialization)
+          <h1 className="font-display text-4xl text-black uppercase tracking-tight">Personnel Directory</h1>
+          <p className="font-bold text-black/70 mt-2 text-lg">
+            {personnel.length} total staff — Includes Volunteers and Medical Specialists
           </p>
         </div>
-        <Button
-          variant="primary"
-          icon={<span className="material-symbols-outlined text-[18px]">person_add</span>}
+        <button
           onClick={openAdd}
+          className="flex items-center justify-center gap-2 px-5 py-3 bg-cobalt hover:bg-cobalt-dark rounded-xl text-white font-bold text-sm transition-colors shadow-sm"
         >
+          <span className="material-symbols-outlined icon-thick text-[18px]">person_add</span>
           Add Personnel
-        </Button>
+        </button>
       </div>
 
-      {/* Type Filter Tabs */}
-      <div className="flex gap-2 flex-wrap">
-        {(["All", "Personnel", "Volunteer", "Medical Staff"] as const).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setFilter(tab)}
-            className={`px-4 py-2 rounded-full text-label-caps font-label-caps transition-colors ${
-              filter === tab
-                ? "bg-primary text-on-primary"
-                : "bg-surface-container text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
-            }`}
-          >
-            {tab} ({tab === "All" ? personnel.length : personnel.filter((p) => p.PERSONNEL_TYPE === tab).length})
-          </button>
-        ))}
+      {/* Filters */}
+      <div className="bg-white border border-gray-200 rounded-[2rem] p-4 flex flex-wrap gap-2 shadow-sm">
+        {(["All", "Personnel", "Volunteer", "Medical Staff"] as const).map((tab) => {
+          const isActive = filter === tab;
+          const count = tab === "All" ? personnel.length : personnel.filter((p) => p.PERSONNEL_TYPE === tab).length;
+          
+          return (
+            <button
+              key={tab}
+              onClick={() => setFilter(tab)}
+              className={`px-5 py-3 rounded-xl font-bold text-sm transition-all border ${
+                isActive
+                  ? "bg-cobalt text-white border-cobalt shadow-sm"
+                  : "bg-white text-gray-600 border-transparent hover:bg-gray-50"
+              }`}
+            >
+              {tab} <span className={`ml-2 px-2 py-0.5 rounded-md font-mono text-xs ${isActive ? "bg-blue-400/30 text-white" : "bg-gray-100 text-gray-500"}`}>{count}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Table */}
-      <div className="bg-slate-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
-        <Table>
-          <TableHeader className="bg-surface-container-low">
-            <TableRow>
-              <TableHead>ID</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Designation / Specialization</TableHead>
-              <TableHead>Phone</TableHead>
-              <TableHead>Base Location</TableHead>
-              <TableHead>Supervisor</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.length === 0 ? (
-              <EmptyState
-                message={personnel.length === 0 ? "No personnel registered yet." : "No records match the current filter."}
-                icon="badge"
-              />
-            ) : (
-              filtered.map((p) => (
-                <TableRow key={p.PERSON_ID} className="hover:bg-surface-container-high transition-colors">
-                  <TableCell className="font-data-mono text-data-mono text-primary">{p.PERSON_ID}</TableCell>
-                  <TableCell className="font-medium text-on-surface">{p.NAME}</TableCell>
-                  <TableCell>
-                    <Badge variant={TYPE_BADGE[p.PERSONNEL_TYPE] ?? "default"}>{p.PERSONNEL_TYPE}</Badge>
-                  </TableCell>
-                  <TableCell className="text-on-surface-variant">
-                    {p.MEDICAL_SPECIALIZATION
-                      ? `Dr. ${p.MEDICAL_SPECIALIZATION}`
-                      : p.VOLUNTEER_TEAM
-                      ? `Team: ${p.VOLUNTEER_TEAM}`
-                      : p.DESIGNATION || "—"}
-                  </TableCell>
-                  <TableCell className="font-data-mono text-data-mono text-on-surface-variant">{p.PHONE || "—"}</TableCell>
-                  <TableCell className="text-on-surface-variant">{p.BASE_LOCATION || "—"}</TableCell>
-                  <TableCell className="text-on-surface-variant text-sm">
-                    {p.SUPERVISOR_NAME ? `${p.SUPERVISOR_NAME} (${p.SUPERVISOR_ID})` : "—"}
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+      <div className="bg-white border border-gray-200 rounded-[2rem] overflow-hidden shadow-sm flex flex-col min-h-[400px]">
+        <div className="overflow-x-auto p-2">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr>
+                {["ID", "Name", "Type", "Designation / Specialization", "Phone", "Base Location", "Supervisor"].map((h) => (
+                  <th key={h} className="p-4 font-mono text-xs text-gray-500 uppercase tracking-wider font-bold bg-azure border-b border-gray-200 first:rounded-tl-xl last:rounded-tr-xl">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="text-sm font-medium text-black">
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="p-12 text-center">
+                    <span className="material-symbols-outlined icon-thick text-[48px] text-gray-300">badge</span>
+                    <p className="font-bold text-gray-500 mt-4">No records match the current filter.</p>
+                  </td>
+                </tr>
+              ) : (
+                filtered.map((p) => {
+                  const typeColor = 
+                    p.PERSONNEL_TYPE === "Medical Staff" ? "bg-blue-100 text-cobalt" :
+                    p.PERSONNEL_TYPE === "Volunteer" ? "bg-green-100 text-green-700" :
+                    "bg-gray-100 text-gray-700";
+                    
+                  return (
+                    <tr key={p.PERSON_ID} className="hover:bg-azure transition-colors border-b border-gray-100 last:border-none">
+                      <td className="p-4 font-bold text-cobalt">{p.PERSON_ID}</td>
+                      <td className="p-4 font-bold">{p.NAME}</td>
+                      <td className="p-4">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-lg font-bold text-xs uppercase tracking-wide ${typeColor}`}>
+                          {p.PERSONNEL_TYPE}
+                        </span>
+                      </td>
+                      <td className="p-4 text-gray-600">
+                        {p.MEDICAL_SPECIALIZATION
+                          ? <span className="font-bold text-cobalt">Dr. {p.MEDICAL_SPECIALIZATION}</span>
+                          : p.VOLUNTEER_TEAM
+                          ? <span className="font-bold text-green-600">Team: {p.VOLUNTEER_TEAM}</span>
+                          : p.DESIGNATION || "—"}
+                      </td>
+                      <td className="p-4 font-mono text-gray-600">{p.PHONE || "—"}</td>
+                      <td className="p-4 text-gray-600">{p.BASE_LOCATION || "—"}</td>
+                      <td className="p-4 text-gray-600">
+                        {p.SUPERVISOR_NAME ? (
+                          <div>
+                            <span className="block">{p.SUPERVISOR_NAME}</span>
+                            <span className="font-mono text-xs text-gray-400">{p.SUPERVISOR_ID}</span>
+                          </div>
+                        ) : "—"}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* ─── Add Personnel Drawer ─── */}
-      {/* Backdrop */}
       {isDrawerOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 transition-opacity"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity"
           onClick={() => setIsDrawerOpen(false)}
         />
       )}
       <div
-        className={`fixed inset-y-0 right-0 w-[440px] max-w-[90vw] bg-surface border-l border-outline-variant shadow-2xl z-50 transform transition-transform duration-300 ease-[cubic-bezier(0.2,0,0,1)] flex flex-col ${
+        className={`fixed inset-y-0 right-0 w-[480px] max-w-[90vw] bg-white border-l border-gray-200 shadow-2xl z-50 transform transition-transform duration-300 ease-[cubic-bezier(0.2,0,0,1)] flex flex-col ${
           isDrawerOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        {/* Drawer header */}
-        <div className="flex justify-between items-center p-4 border-b border-outline-variant bg-surface-container-low shrink-0">
+        <div className="flex justify-between items-center p-6 border-b border-gray-200 bg-azure shrink-0">
           <div className="flex items-center gap-3">
             <button
-              className="p-1.5 rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant"
+              className="p-2 rounded-full hover:bg-blue-100 transition-colors text-cobalt"
               onClick={() => setIsDrawerOpen(false)}
             >
-              <span className="material-symbols-outlined">close</span>
+              <span className="material-symbols-outlined icon-thick">close</span>
             </button>
-            <h3 className="text-headline-md font-headline-md text-on-surface font-semibold">
+            <h3 className="font-display text-xl text-black">
               Add Personnel
             </h3>
           </div>
         </div>
 
-        {/* Form */}
-        <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
+        <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
           {submitSuccess && (
-            <div className="bg-stable-emerald/10 border border-stable-emerald/40 rounded-lg p-4 flex items-center gap-3 text-stable-emerald">
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-              <span className="text-body-md font-body-md">Personnel added successfully!</span>
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3 text-green-700 shadow-sm">
+              <span className="material-symbols-outlined icon-thick">check_circle</span>
+              <span className="font-bold text-sm">Personnel added successfully!</span>
             </div>
           )}
           {submitError && (
-            <div className="bg-emergency-red/10 border border-emergency-red/30 rounded-lg p-3 text-emergency-red text-body-md font-body-md">
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-600 text-sm font-bold shadow-sm">
               {submitError}
             </div>
           )}
 
           {/* Type selector */}
           <div>
-            <label className="block text-label-caps font-label-caps text-on-surface-variant mb-2">
+            <label className="block font-mono text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
               Personnel Type *
             </label>
             <div className="flex gap-2">
@@ -229,10 +254,10 @@ export default function PersonnelPage() {
                   key={t}
                   type="button"
                   onClick={() => setField("type", t)}
-                  className={`flex-1 py-2 rounded-lg text-label-caps font-label-caps border transition-all ${
+                  className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all border shadow-sm ${
                     form.type === t
-                      ? "bg-primary text-on-primary border-primary"
-                      : "bg-surface-container border-outline-variant text-on-surface-variant hover:bg-surface-container-high"
+                      ? "bg-cobalt text-white border-cobalt"
+                      : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
                   }`}
                 >
                   {t === "base" ? "Personnel" : t === "volunteer" ? "Volunteer" : "Medical"}
@@ -240,6 +265,8 @@ export default function PersonnelPage() {
               ))}
             </div>
           </div>
+
+          <div className="h-px bg-gray-100 w-full" />
 
           {/* Common fields */}
           {[
@@ -251,67 +278,67 @@ export default function PersonnelPage() {
             { key: "supervisor_id", label: "Supervisor ID", placeholder: "e.g., P-001 (optional)" },
           ].map(({ key, label, placeholder }) => (
             <div key={key}>
-              <label className="block text-label-caps font-label-caps text-on-surface-variant mb-1">{label}</label>
+              <label className="block font-mono text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{label}</label>
               <input
                 type="text"
                 placeholder={placeholder}
                 value={(form as any)[key]}
                 onChange={(e) => setField(key, e.target.value)}
-                className="w-full bg-surface-dim border border-outline-variant focus:border-primary rounded-lg px-3 py-2 text-body-md font-body-md text-on-surface outline-none transition-colors"
+                className="w-full bg-gray-50 border border-gray-200 focus:border-cobalt focus:ring-2 focus:ring-azure rounded-xl px-4 py-3 text-sm font-medium text-black placeholder:text-gray-400 outline-none transition-all"
               />
             </div>
           ))}
 
           {/* Volunteer-specific */}
           {form.type === "volunteer" && (
-            <div>
-              <label className="block text-label-caps font-label-caps text-on-surface-variant mb-1">Team</label>
+            <div className="bg-green-50 p-4 rounded-xl border border-green-100">
+              <label className="block font-mono text-xs font-bold text-green-700 uppercase tracking-wider mb-2">Team</label>
               <input
                 type="text"
                 placeholder="e.g., Search and Rescue"
                 value={form.team}
                 onChange={(e) => setField("team", e.target.value)}
-                className="w-full bg-surface-dim border border-outline-variant focus:border-primary rounded-lg px-3 py-2 text-body-md font-body-md text-on-surface outline-none transition-colors"
+                className="w-full bg-white border border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-100 rounded-xl px-4 py-3 text-sm font-medium text-black placeholder:text-gray-400 outline-none transition-all"
               />
             </div>
           )}
 
           {/* Medical-specific */}
           {form.type === "medical" && (
-            <>
+            <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 flex flex-col gap-4">
               <div>
-                <label className="block text-label-caps font-label-caps text-on-surface-variant mb-1">Specialization</label>
+                <label className="block font-mono text-xs font-bold text-cobalt uppercase tracking-wider mb-2">Specialization</label>
                 <input
                   type="text"
                   placeholder="e.g., Emergency Medicine"
                   value={form.specialization}
                   onChange={(e) => setField("specialization", e.target.value)}
-                  className="w-full bg-surface-dim border border-outline-variant focus:border-primary rounded-lg px-3 py-2 text-body-md font-body-md text-on-surface outline-none transition-colors"
+                  className="w-full bg-white border border-blue-200 focus:border-cobalt focus:ring-2 focus:ring-azure rounded-xl px-4 py-3 text-sm font-medium text-black placeholder:text-gray-400 outline-none transition-all"
                 />
               </div>
               <div>
-                <label className="block text-label-caps font-label-caps text-on-surface-variant mb-1">Since Date</label>
+                <label className="block font-mono text-xs font-bold text-cobalt uppercase tracking-wider mb-2">Since Date</label>
                 <input
                   type="date"
                   value={form.since_date}
                   onChange={(e) => setField("since_date", e.target.value)}
-                  className="w-full bg-surface-dim border border-outline-variant focus:border-primary rounded-lg px-3 py-2 text-body-md font-body-md text-on-surface outline-none transition-colors"
+                  className="w-full bg-white border border-blue-200 focus:border-cobalt focus:ring-2 focus:ring-azure rounded-xl px-4 py-3 text-sm font-medium text-black outline-none transition-all"
                 />
               </div>
-            </>
+            </div>
           )}
         </div>
 
         {/* Submit */}
-        <div className="p-4 border-t border-outline-variant shrink-0">
-          <Button
-            variant="primary"
+        <div className="p-6 border-t border-gray-200 bg-gray-50 flex shrink-0">
+          <button
             onClick={handleSubmit}
             disabled={submitting}
-            className="w-full justify-center"
+            className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold text-sm bg-cobalt hover:bg-cobalt-dark text-white transition-colors shadow-sm disabled:opacity-50"
           >
+            {submitting ? <span className="material-symbols-outlined icon-thick animate-spin">progress_activity</span> : <span className="material-symbols-outlined icon-thick">save</span>}
             {submitting ? "Saving..." : "Add Personnel"}
-          </Button>
+          </button>
         </div>
       </div>
     </div>

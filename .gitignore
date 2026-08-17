@@ -58,3 +58,7 @@ coverage/
 
 # ─── Design work files (large AI-generated or course notes) ──
 Deginer agent/
+
+# Temporary design files
+*.zip
+frontend/temp_*/
