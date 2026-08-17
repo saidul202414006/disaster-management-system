@@ -7,49 +7,46 @@ DBMS/
 ├── frontend/          # Next.js 16 + TypeScript + Tailwind CSS
 ├── backend/           # Node.js + Express + TypeScript
 ├── database/          # Oracle SQL Scripts
-│   ├── 01_schema.sql  # 16 tables (ER Diagram → Relational Schema)
-│   └── 02_queries.sql # 34 instructor-taught SQL queries
-└── PROGRESS.md        # Development log
+│   ├── 01_schema.sql  # Database Schema (Tables & Constraints)
+│   └── 06_app_user.sql# User Authentication Schema
+├── setup.bat          # Automated one-click setup script
+├── restart.bat        # Automated startup script
+└── README.md          # Project documentation
 ```
 
 ---
 
-## How to Run (Any Computer)
+## 🚀 How to Run (Fresh Computer Setup)
 
-### Step 1 — Oracle Database Setup
-1. Install Oracle Database XE (free): https://www.oracle.com/database/technologies/xe-downloads.html
-2. Create the schema: run `database/01_schema.sql` in SQL*Plus or SQLcl
-3. Note your credentials: username, password, connection string (e.g., `localhost:1521/XEPDB1`)
+We have provided a fully automated script for a fresh computer. Follow these steps:
 
-### Step 2 — Backend Setup
-```bash
-cd backend
-cp .env.example .env           # Copy template
-# Edit .env: set DB_USER, DB_PASSWORD, DB_CONNECTION_STRING
-npm install
-npm run dev                    # Starts on http://localhost:5000
-```
+### Prerequisite: Oracle Database
+You must have Oracle Database (21c XE recommended) installed.
+Download: [Oracle 21c XE](https://www.oracle.com/database/technologies/xe-downloads.html)
 
-### Step 3 — Frontend Setup
-```bash
-cd frontend
-# .env.local is already configured for localhost:5000
-npm install
-npm run dev                    # Starts on http://localhost:3000
-```
+### Option A: One-Click Automated Setup (Recommended)
+1. Double-click the **`setup.bat`** file in the root directory.
+2. The wizard will automatically check for Node.js and SQL*Plus.
+3. It will prompt you for your Oracle Database password (usually `saidul` or `system`) to configure `.env` automatically.
+4. It will install all Frontend and Backend dependencies.
+5. It will prompt you to automatically seed the database (creates tables). Type `Y` and press Enter.
+6. Once completed, double-click **`restart.bat`** to start both servers!
+7. Open `http://localhost:3000` in your browser.
+
+### Option B: Manual Setup
+If you prefer to configure everything manually:
+1. Run `database/01_schema.sql` and `database/06_app_user.sql` in your Oracle terminal.
+2. In the `backend` folder, copy `.env.example` to `.env` and fill in your database credentials.
+3. Run `npm install` in both `frontend` and `backend` directories.
+4. Run `npm run dev` in both directories.
 
 ---
 
 ## Portability — Moving to Another Computer
 
-Only **2 files** need to be changed when moving to a different machine:
-
-| File | What to change |
-|------|---------------|
-| `backend/.env` | `DB_USER`, `DB_PASSWORD`, `DB_CONNECTION_STRING` |
-| `frontend/.env.local` | `NEXT_PUBLIC_API_URL` (if backend runs on different port/host) |
-
-Everything else is machine-independent.
+Our architecture separates environment variables perfectly. When cloning to a new machine:
+1. Ensure Oracle DB is running.
+2. Just run `setup.bat`! It will re-configure the environment and install dependencies.
 
 ---
 
@@ -76,29 +73,24 @@ Everything else is machine-independent.
 
 ---
 
-## API Endpoints
+## API Endpoints Overview
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/health` | GET | Backend health check |
-| `/api/dashboard` | GET | All KPIs in one call |
-| `/api/disasters` | GET/POST | Disaster events |
-| `/api/disasters/:name` | GET/PUT | Single disaster |
-| `/api/victims` | GET/POST | Victims + phones + family |
-| `/api/victims/:id` | GET | Victim detail |
-| `/api/shelters` | GET/POST | Shelters + occupancy |
-| `/api/shelters/checkin` | POST | Check victim into shelter |
-| `/api/warehouses` | GET/POST | Warehouses + donation totals |
-| `/api/vehicles` | GET/POST | Fleet |
-| `/api/donations` | GET/POST | Donations |
-| `/api/distributions` | GET/POST | Relief distribution (aggregation) |
-| `/api/personnel` | GET/POST | Personnel + ISA sub-entities |
-| `/api/personnel/volunteers` | GET | Volunteers only |
-| `/api/personnel/medical` | GET | Medical staff only |
+| `/api/auth/register` | POST | Register new admin/victim |
+| `/api/auth/login` | POST | Login and receive JWT |
+| `/api/dashboard` | GET | All KPIs for admin panel |
+| `/api/disasters` | GET/POST | Disaster CRUD |
+| `/api/victims` | GET/POST | Victims + Multivalued Phones + Weak Entity Family |
+| `/api/shelters` | GET/POST | Shelters CRUD |
+| `/api/warehouses`| GET/POST | Warehouses CRUD |
+| `/api/donations` | GET/POST | Donations CRUD |
+| `/api/distributions`| GET/POST| Distributions (Aggregation) |
+| `/api/personnel` | GET/POST | Personnel + ISA Subtypes |
 
 ---
 
-## Notes
-- No PL/SQL, Triggers, or Stored Procedures (instructor did not teach these)
-- Derived attributes (duration_days, available_capacity) calculated in queries, not stored
-- All configuration is in `.env` files — never hardcoded
+## Technical Notes
+- **No ORM:** We use raw SQL queries via `oracledb` to demonstrate pure DBMS concepts.
+- **No PL/SQL:** Triggers and Stored Procedures were excluded as per course limitations.
+- **Security:** JWT Authentication and bcrypt password hashing are fully implemented.

@@ -1,8 +1,4 @@
--- ============================================================
--- APP_USER Table — Application-level authentication
--- NOTE: This is NOT part of the ER Diagram (which models disaster domain)
---       This is the system's authentication layer, added separately.
--- ============================================================
+-- Table: APP_USER
 CREATE TABLE APP_USER (
     user_id         VARCHAR2(50)    PRIMARY KEY,
     email           VARCHAR2(200)   UNIQUE NOT NULL,
