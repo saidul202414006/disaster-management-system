@@ -18,20 +18,25 @@ DBMS/
 
 ## 🚀 How to Run (Fresh Computer Setup)
 
-We have provided a fully automated script for a fresh computer. Follow these steps:
+We have provided a fully automated script for a fresh computer. Follow these steps exactly:
 
 ### Prerequisite: Oracle Database
-You must have Oracle Database (21c XE recommended) installed.
+You must have Oracle Database (21c XE recommended) installed and running.
 Download: [Oracle 21c XE](https://www.oracle.com/database/technologies/xe-downloads.html)
 
 ### Option A: One-Click Automated Setup (Recommended)
-1. Double-click the **`setup.bat`** file in the root directory.
-2. The wizard will automatically check for Node.js and SQL*Plus.
-3. It will prompt you for your Oracle Database password (usually `saidul` or `system`) to configure `.env` automatically.
-4. It will install all Frontend and Backend dependencies.
-5. It will prompt you to automatically seed the database (creates tables). Type `Y` and press Enter.
-6. Once completed, double-click **`restart.bat`** to start both servers!
-7. Open `http://localhost:3000` in your browser.
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/saidul202414006/disaster-management-system.git
+   cd disaster-management-system
+   ```
+2. Double-click the **`setup.bat`** file in the root directory.
+3. The wizard will automatically check for Node.js and SQL*Plus.
+4. It will prompt you for your Oracle Database password (usually `saidul` or `system`) to configure `.env` automatically.
+5. It will install all Frontend and Backend dependencies.
+6. It will prompt you to automatically seed the database (creates tables). Type `Y` and press Enter.
+7. Once completed, double-click **`restart.bat`** to start both servers!
+8. Open `http://localhost:3000` in your browser.
 
 ### Option B: Manual Setup
 If you prefer to configure everything manually:
